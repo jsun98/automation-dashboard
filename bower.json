@@ -1,0 +1,17 @@
+{
+  "name": "jenkins dashboard",
+  "description": "data visualization for automation test case status",
+  "main": "app.js",
+  "authors": [
+    "Josh Sun <joshuasun1998@icloud.com>"
+  ],
+  "license": "GPL 3.0",
+  "homepage": "https://github.com/jsun98/OMERS-Jenkins-dashboard",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

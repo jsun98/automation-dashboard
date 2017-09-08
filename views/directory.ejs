@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+	<%- include('./header'); %>
+  </head>
+  <body>
+	<!-- header bar -->
+	<section class="header">
+		<h3 class='left-text'>Automation Execution Dashboard</h3>
+		<img src="/images/omers.png">
+	</section>
+
+	<div class='ui center aligned segment'>
+		<button class="ui primary button">TST</button>
+		<button class="ui primary button">SIT2</button>
+		<button class="ui primary button">OAT</button>
+	</div>
+
+	<script
+  		src="https://code.jquery.com/jquery-3.2.1.min.js"
+  		integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  		crossorigin="anonymous">
+	</script>
+
+	<script>
+		(function($) {
+			$('button').on('click', function () {
+				$button = $(this)
+				$button.addClass('loading')
+				setTimeout(function () {
+					window.location.href = '/'+$button.text()
+				}, 1000)
+			})
+		})(jQuery)
+	</script>
+  </body>
+
+
+
+</html>
