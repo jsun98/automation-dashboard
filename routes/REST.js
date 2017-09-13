@@ -76,10 +76,12 @@ router.route('/BPByName/:name')
 					_id: '$name',
 					last_run_date: { $first: '$last_run_date' },
 					status: { $first: '$status' },
+					job: { $first: '$job' },
 				},
 			}, { $sort: { last_run_date: -1 } },
 		])
 			.then(TCs => {
+				console.log(TCs)
 				if (!TCs) return res.status(400).send()
 				res.status(200).send(TCs)
 			})
@@ -94,7 +96,7 @@ router.route('/TCByName/:name')
 		TC.find({
 			name: req.params.name,
 			env: req.session.env,
-		}, 'last_run_date status screenshot error job', // this means we only select these fields to be returned
+		}, 'last_run_date status screenshot error', // this means we only select these fields to be returned
 		{ sort: { last_run_date: -1 } })
 			.then(testCases => {
 				res.status(200).send(testCases)
@@ -177,6 +179,8 @@ router.route('/TC/:id')
 			})
 	})
 	.put((req, res, next) => { // update a testcase by id
+		if (req.body.job && !req.body.job.includes('http'))
+			req.body.job = 'http://' + req.body.job
 		TC.findByIdAndUpdate(req.params.id, res.body)
 			.then(testCase => {
 				if (!testCase) return res.status(404).send()
@@ -213,6 +217,25 @@ router.route('/TC')
 			.catch(err => {
 				next(err)
 			})
+	})
+
+
+router.route('/updatejenkinsjobbyname/:name')
+	.put((req, res, next) => {
+		if (req.body.job && !req.body.job.includes('http'))
+			req.body.job = 'http://' + req.body.job
+		TC.update({ name: req.params.name }, { $set: { job: req.body.job } }, { multi: true }, (err, testCases) => {
+			if (err) return next(err)
+			res.status(200).send(testCases)
+		})
+	})
+
+router.route('/getjenkinsjobbyname/:name')
+	.get((req, res, next) => {
+		TC.findOne({ name: req.params.name }, (err, testCase) => {
+			if (err) return next(err)
+			res.status(200).send(testCase.job)
+		})
 	})
 
 

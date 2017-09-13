@@ -72,6 +72,11 @@ class BP extends Component {
 						Header: 'Last Run',
 						minWidth: 150,
 						accessor: r => Moment(r.last_run_date).format('MMM Do, YYYY HH:mm:ss'),
+					}, {
+						Header: 'Jenkins Job',
+						accessor: 'job',
+						maxWidth: 100,
+						Cell: row => <a target='_blank' href={row.original.job}>Link</a>,
 					} ],
 				} ]
 			}

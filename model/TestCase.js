@@ -78,10 +78,7 @@ const
 				default: Date(),
 			},
 		} ],
-		job: {
-			type: String,
-			required: true,
-		},
+		job: String,
 		error: String,
 		screenshot: String,
 	})
