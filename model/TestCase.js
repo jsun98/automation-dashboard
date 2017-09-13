@@ -52,15 +52,15 @@ const
 			required: true,
 			lowercase: true,
 			set: name => name.toUpperCase(),
-			 enum: {
+			enum: {
 				message: '{VALUE} is not one of the accepted BPG names, which should be one of bpg1, bpg2, bpg3, bpg4, bpg5, bpg6',
-				values: ['bpg1',
+				values: [ 'bpg1',
 					'bpg2',
 					'bpg3',
 					'bpg4',
 					'bpg5',
-					'bpg6'],
-			}, 
+					'bpg6' ],
+			},
 		},
 		userComment: [ {
 			author: String,
@@ -78,6 +78,10 @@ const
 				default: Date(),
 			},
 		} ],
+		job: {
+			type: String,
+			required: true,
+		},
 		error: String,
 		screenshot: String,
 	})

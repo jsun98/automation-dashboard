@@ -112819,35 +112819,52 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var UserComments = function (_Component) {
-	_inherits(UserComments, _Component);
+var ReactClass = function (_Component) {
+	_inherits(ReactClass, _Component);
+
+	function ReactClass(props) {
+		_classCallCheck(this, ReactClass);
+
+		return _possibleConstructorReturn(this, (ReactClass.__proto__ || Object.getPrototypeOf(ReactClass)).call(this, props));
+	}
+
+	_createClass(ReactClass, [{
+		key: 'render',
+		value: function render() {}
+	}]);
+
+	return ReactClass;
+}(_react.Component);
+
+var UserComments = function (_Component2) {
+	_inherits(UserComments, _Component2);
 
 	function UserComments(props) {
 		_classCallCheck(this, UserComments);
 
-		var _this = _possibleConstructorReturn(this, (UserComments.__proto__ || Object.getPrototypeOf(UserComments)).call(this, props));
+		var _this2 = _possibleConstructorReturn(this, (UserComments.__proto__ || Object.getPrototypeOf(UserComments)).call(this, props));
 
-		_this.state = {
+		_this2.state = {
 			comments: [],
-			id: _this.props.id,
-			route: _this.props.route,
+			id: _this2.props.id,
+			route: _this2.props.route,
 			commentButtonLoading: false,
 			errorHidden: true,
 			formAuthor: '',
 			formText: ''
 		};
-		_this.formSubmitHandler = _this.formSubmitHandler.bind(_this);
-		_this.fetchData = _this.fetchData.bind(_this);
-		return _this;
+		_this2.formSubmitHandler = _this2.formSubmitHandler.bind(_this2);
+		_this2.fetchData = _this2.fetchData.bind(_this2);
+		return _this2;
 	}
 
 	_createClass(UserComments, [{
 		key: 'fetchData',
 		value: function fetchData() {
-			var _this2 = this;
+			var _this3 = this;
 
 			_jquery2.default.get('/db/' + this.state.route + '/' + this.state.id).done(function (comments) {
-				_this2.setState({ comments: comments });
+				_this3.setState({ comments: comments });
 			}).fail(function (err) {
 				console.log(err);
 			});
@@ -112855,7 +112872,7 @@ var UserComments = function (_Component) {
 	}, {
 		key: 'formSubmitHandler',
 		value: function formSubmitHandler(e) {
-			var _this3 = this;
+			var _this4 = this;
 
 			e.preventDefault();
 			this.setState({ commentButtonLoading: true });
@@ -112867,16 +112884,16 @@ var UserComments = function (_Component) {
 					text: this.state.formText
 				}
 			}).then(function () {
-				_this3.fetchData();
-				_this3.setState({
+				_this4.fetchData();
+				_this4.setState({
 					formAuthor: '',
 					formText: '',
 					errorHidden: true,
 					commentButtonLoading: false
 				});
 			}).fail(function () {
-				_this3.fetchData();
-				_this3.setState({
+				_this4.fetchData();
+				_this4.setState({
 					errorHidden: false,
 					commentButtonLoading: false
 				});
@@ -112890,7 +112907,7 @@ var UserComments = function (_Component) {
 	}, {
 		key: 'render',
 		value: function render() {
-			var _this4 = this;
+			var _this5 = this;
 
 			var commentList;
 			if (this.state.comments.length === 0) commentList = 'No comments posted yet';else commentList = this.state.comments.map(function (comment, index) {
@@ -112957,7 +112974,7 @@ var UserComments = function (_Component) {
 							'Nickname'
 						),
 						_react2.default.createElement('input', { name: 'author', type: 'text', value: this.state.formAuthor, onChange: function onChange(e) {
-								_this4.setState({ formAuthor: e.target.value });
+								_this5.setState({ formAuthor: e.target.value });
 							} })
 					),
 					_react2.default.createElement(
@@ -112969,7 +112986,7 @@ var UserComments = function (_Component) {
 							'Comment'
 						),
 						_react2.default.createElement(_semanticUiReact.Form.TextArea, { name: 'text', value: this.state.formText, onChange: function onChange(e) {
-								_this4.setState({ formText: e.target.value });
+								_this5.setState({ formText: e.target.value });
 							} })
 					),
 					_react2.default.createElement(_semanticUiReact.Button, { content: 'Post Comment', labelPosition: 'left', icon: 'edit', type: 'submit', loading: this.state.commentButtonLoading, primary: true })

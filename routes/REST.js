@@ -103,6 +103,10 @@ router.route('/TCByName/:name')
 // post: hostname:port/db/TC/
 router.route('/TC')
 	.post((req, res, next) => {
+		if (!req.body.screenshot.includes('http'))
+			req.body.screenshot = 'http://' + req.body.screenshot
+		if (!req.body.job.includes('http'))
+			req.body.job = 'http://' + req.body.job
 		const newTestCase = new TC(req.body)
 		newTestCase.save()
 			.then(testCase => {
