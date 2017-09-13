@@ -115011,11 +115011,11 @@ var BP = function (_Component) {
 						accessor: 'job',
 						maxWidth: 100,
 						Cell: function Cell(row) {
-							return _react2.default.createElement(
+							return row.original.job ? _react2.default.createElement(
 								'a',
 								{ target: '_blank', href: row.original.job },
 								'Link'
-							);
+							) : '';
 						}
 					}]
 				}]

@@ -81,7 +81,6 @@ router.route('/BPByName/:name')
 			}, { $sort: { last_run_date: -1 } },
 		])
 			.then(TCs => {
-				console.log(TCs)
 				if (!TCs) return res.status(400).send()
 				res.status(200).send(TCs)
 			})

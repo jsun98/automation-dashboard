@@ -76,7 +76,7 @@ class BP extends Component {
 						Header: 'Jenkins Job',
 						accessor: 'job',
 						maxWidth: 100,
-						Cell: row => <a target='_blank' href={row.original.job}>Link</a>,
+						Cell: row => row.original.job ? <a target='_blank' href={row.original.job}>Link</a> : '',
 					} ],
 				} ]
 			}
