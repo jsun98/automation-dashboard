@@ -3,7 +3,7 @@ const
 	router = express.Router(),
 	TC = require('../model/TestCase')
 
-// Endpoint for CRUD operations on all BPG, BP, and TestCase
+// fetches all BPGs, used for BPGList page
 router.route('/BPG')
 	.get((req, res, next) => {
 		TC.aggregate([
@@ -26,10 +26,12 @@ router.route('/BPG')
 			})
 	})
 
-// Endpoint for CRUD operations on Single BPGs
+// fetches the details of a single BPG by name, used for BPG page
 router.route('/BPGByName/:name')
 	.get((req, res, next) => {
 		const BPGName = req.params.name
+
+		// we need to perform a aggregation (basically calculate the total number of pass, fail, skip, which is not directly stored in database)
 		TC.aggregate([
 			{
 				$match: {
@@ -55,10 +57,12 @@ router.route('/BPGByName/:name')
 			})
 	})
 
-
+// fetches details of a single BP by name, used for BP page
 router.route('/BPByName/:name')
 	.get((req, res, next) => {
 		const BPName = req.params.name
+
+		// we need to perform a aggregation (basically calculate the total number of pass, fail, skip, which is not directly stored in database)
 		TC.aggregate([
 			{
 				$match: {
@@ -84,14 +88,14 @@ router.route('/BPByName/:name')
 			})
 	})
 
+// fetches all details of a Testcase by name, used for TC page
 router.route('/TCByName/:name')
 	.get((req, res, next) => {
 		TC.find({
 			name: req.params.name,
 			env: req.session.env,
-		}, 'last_run_date status screenshot error job',
+		}, 'last_run_date status screenshot error job', // this means we only select these fields to be returned
 		{ sort: { last_run_date: -1 } })
-			.limit(25)
 			.then(testCases => {
 				res.status(200).send(testCases)
 			})
@@ -100,25 +104,9 @@ router.route('/TCByName/:name')
 			})
 	})
 
-// post: hostname:port/db/TC/
-router.route('/TC')
-	.post((req, res, next) => {
-		if (!req.body.screenshot.includes('http'))
-			req.body.screenshot = 'http://' + req.body.screenshot
-		if (!req.body.job.includes('http'))
-			req.body.job = 'http://' + req.body.job
-		const newTestCase = new TC(req.body)
-		newTestCase.save()
-			.then(testCase => {
-				res.status(200).send(testCase._id)
-			})
-			.catch(err => {
-				next(err)
-			})
-	})
-
+// endpoint for fetching/adding new user comments
 router.route('/userComment/:id')
-	.get((req, res, next) => {
+	.get((req, res, next) => { // fetch
 		TC.findById(req.params.id, 'userComment')
 			.then(testCase => {
 				if (!testCase) return res.status(404).send()
@@ -135,7 +123,7 @@ router.route('/userComment/:id')
 				next(err)
 			})
 	})
-	.put((req, res, next) => {
+	.put((req, res, next) => { // add
 		if (!req.body.author || !req.body.text) return res.status(400).end()
 		TC.findByIdAndUpdate(req.params.id, { $push: { userComment: req.body } })
 			.then(testCase => {
@@ -146,6 +134,7 @@ router.route('/userComment/:id')
 			})
 	})
 
+// same as above, but for automation comments
 router.route('/autoComment/:id')
 	.get((req, res, next) => {
 		TC.findById(req.params.id, 'autoComment')
@@ -175,8 +164,9 @@ router.route('/autoComment/:id')
 			})
 	})
 
+// CRUD operation on database entries by id
 router.route('/TC/:id')
-	.get((req, res, next) => {
+	.get((req, res, next) => { // fetch a testcase by id
 		TC.findById(req.params.id)
 			.then(testCase => {
 				if (!testCase) return res.status(404).send()
@@ -186,7 +176,7 @@ router.route('/TC/:id')
 				next(err)
 			})
 	})
-	.put((req, res, next) => {
+	.put((req, res, next) => { // update a testcase by id
 		TC.findByIdAndUpdate(req.params.id, res.body)
 			.then(testCase => {
 				if (!testCase) return res.status(404).send()
@@ -196,11 +186,29 @@ router.route('/TC/:id')
 				next(err)
 			})
 	})
-	.delete((req, res, next) => {
+	.delete((req, res, next) => { // delete a testcase by id
 		TC.findByIdAndRemove(req.params.id)
 			.then(tc => {
 				if (!tc) return res.status(404).send()
 				res.status(200).send(tc)
+			})
+			.catch(err => {
+				next(err)
+			})
+	})
+
+// creating a new testcase, returns id
+router.route('/TC')
+	.post((req, res, next) => {
+		// append 'http' in front of link to open a new tab when link is clicked
+		if (!req.body.screenshot.includes('http'))
+			req.body.screenshot = 'http://' + req.body.screenshot
+		if (!req.body.job.includes('http'))
+			req.body.job = 'http://' + req.body.job
+		const newTestCase = new TC(req.body)
+		newTestCase.save()
+			.then(testCase => {
+				res.status(200).send(testCase._id)
 			})
 			.catch(err => {
 				next(err)

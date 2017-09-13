@@ -59,30 +59,40 @@ e
 ++++++++++++++++++++++++++++++++++./dhhddddddddhhyso++++++/////-`         `ohddmmddddddmdyo+++o+oooo
 
 */
+
+// import dependencies
 const
-	bodyParser = require('body-parser'),
+	bodyParser = require('body-parser'), // parses request body into req.body
 	cookieParser = require('cookie-parser'),
 	cookieSession = require('cookie-session'),
-	express = require('express'),
+	express = require('express'), // server framework
 	favicon = require('serve-favicon'),
 	fs = require('fs'),
 	logger = require('morgan'),
-	mongoose = require('mongoose'),
+	mongoose = require('mongoose'), // mongodb driver for nodejs
 	path = require('path'),
 	rfs = require('rotating-file-stream'),
 	app = express(),
-	port = normalizePort(process.env.PORT || '4000'),
-	logDirectory = path.join(__dirname, 'logs')
+	port = normalizePort(process.env.PORT || '4000'), // setting default port
+	logDirectory = path.join(__dirname, 'logs') // set log directory
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
+
+// port set up
 app.set('port', port)
+
+// proxy, used for sessions
 app.set('trust proxy', 1) // trust first proxy
 
+// writing logs
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory)
 
+// serve favicon
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
+
+// logger setup
 app.use(logger('dev'))
 app.use(logger('common', {
 	stream: rfs('server.log', {
@@ -90,20 +100,27 @@ app.use(logger('common', {
 		path: logDirectory,
 	}),
 }))
+
+// bodyparser set up, parses json and urlencoded requests
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
+
+// setup cookies
 app.use(cookieParser())
-app.use(express.static(path.join(__dirname, 'public')))
 app.use(cookieSession({
 	name: 'env',
 	secret: 'thankmrgoose',
 }))
+
+// tells server where to serve static files
+app.use(express.static(path.join(__dirname, 'public')))
+
+// connect to database
 mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/dashboard', { useMongoClient: true })
 
+// top level routes, for more detail, see ./routes
 app.use('/db', require('./routes/REST'))
 app.use('/', require('./routes/index'))
-
-
 
 
 // catch 404 and forward to error handler
@@ -129,9 +146,10 @@ app.use((err, req, res, next) => {
 		res.render('error')
 })
 
+// start listening
 app.listen(port, () => console.log('Server started on port ' + port))
 
-
+// helper function to make sure port number is right
 function normalizePort (val) {
 	const port = parseInt(val, 10)
 
