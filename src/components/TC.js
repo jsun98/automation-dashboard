@@ -155,9 +155,14 @@ class TC extends Component {
 							maxWidth: 100,
 							Cell: row => {
 								if (row.original.screenshot)
-									return <a target='_blank' href={row.original.screenshot}>link</a>
+									return <a target='_blank' href={row.original.screenshot}>Link</a>
 
 							},
+						}, {
+							Header: 'Jenkins Job',
+							accessor: 'job',
+							maxWidth: 100,
+							Cell: row => <a target='_blank' href={row.original.job}>Link</a>,
 						} ],
 					} ]
 				}

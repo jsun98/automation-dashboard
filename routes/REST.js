@@ -89,7 +89,7 @@ router.route('/TCByName/:name')
 		TC.find({
 			name: req.params.name,
 			env: req.session.env,
-		}, 'last_run_date status screenshot error',
+		}, 'last_run_date status screenshot error job',
 		{ sort: { last_run_date: -1 } })
 			.limit(25)
 			.then(testCases => {
