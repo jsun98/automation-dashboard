@@ -3,17 +3,6 @@ import React, { Component } from 'react'
 import $ from 'jquery'
 import Moment from 'moment'
 
-
-class ReactClass extends Component {
-	constructor (props) {
-		super(props)
-	}
-
-	render () {
-
-	}
-}
-
 class UserComments extends Component {
 	constructor (props) {
 		super(props)

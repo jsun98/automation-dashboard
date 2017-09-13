@@ -26,6 +26,8 @@
     "no-script-url": 0,
     "no-invalid-this": 0,
     "no-sync": 0,
+    "no-extra-parens": 0,
+    "sort-imports": 0,
   },
   "env": {
     "browser": true,

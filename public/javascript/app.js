@@ -112398,6 +112398,53 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _semanticUiReact = require('semantic-ui-react');
+
+var _UserComments = require('./UserComments');
+
+var _UserComments2 = _interopRequireDefault(_UserComments);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var CommentModal = function CommentModal(_ref) {
+	var id = _ref.id,
+	    heading = _ref.heading,
+	    routeEndPoint = _ref.routeEndPoint,
+	    visible = _ref.visible,
+	    onClose = _ref.onClose;
+	return _react2.default.createElement(
+		_semanticUiReact.Modal,
+		{ closeIcon: true, onClose: onClose, open: visible },
+		_react2.default.createElement(
+			_semanticUiReact.Modal.Header,
+			null,
+			heading
+		),
+		_react2.default.createElement(
+			_semanticUiReact.Modal.Content,
+			{ scrolling: true },
+			_react2.default.createElement(
+				_semanticUiReact.Modal.Description,
+				null,
+				_react2.default.createElement(_UserComments2.default, { id: id, route: routeEndPoint })
+			)
+		)
+	);
+};
+
+exports.default = CommentModal;
+
+},{"./UserComments":1367,"react":1037,"semantic-ui-react":1245}],1366:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _semanticUiReact = require('semantic-ui-react');
@@ -112420,9 +112467,13 @@ var _reactTable = require('react-table');
 
 var _reactTable2 = _interopRequireDefault(_reactTable);
 
-var _userComments = require('./userComments');
+var _UserComments = require('./UserComments');
 
-var _userComments2 = _interopRequireDefault(_userComments);
+var _UserComments2 = _interopRequireDefault(_UserComments);
+
+var _CommentModal = require('./CommentModal');
+
+var _CommentModal2 = _interopRequireDefault(_CommentModal);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -112438,7 +112489,11 @@ var TC = function (_Component) {
 	function TC(props) {
 		_classCallCheck(this, TC);
 
+		// initial state
 		var _this = _possibleConstructorReturn(this, (TC.__proto__ || Object.getPrototypeOf(TC)).call(this, props));
+
+		// required reactjs semantics
+
 
 		_this.state = {
 			loading: true,
@@ -112449,6 +112504,9 @@ var TC = function (_Component) {
 		return _this;
 	}
 
+	// fetches data for this page from the server endpoint
+
+
 	_createClass(TC, [{
 		key: 'fetchData',
 		value: function fetchData() {
@@ -112456,70 +112514,171 @@ var TC = function (_Component) {
 
 			_jquery2.default.get('/db/TCByName/' + this.props.id).done(function (data) {
 				data.map(function (datum) {
+
+					// format data for readability
 					datum.last_run_date_simp = (0, _moment2.default)(datum.last_run_date).format('DD/MM');
+
+					// convert status string to numbers for use in line chart
 					if (datum.status === 'pass') datum.statusNum = 3;else if (datum.status === 'fail') datum.statusNum = 2;else datum.statusNum = 1;
 					return datum;
 				});
+
+				// store the fetched data in state to be passed to our table
 				_this2.setState({
 					name: _this2.props.id,
 					data: data,
-					loading: false
+					loading: false // UI loading screen while fetching
 				});
 			});
 		}
+
+		// this fires before component is rendered, so we fetch our initial data
+
 	}, {
 		key: 'componentDidMount',
 		value: function componentDidMount() {
 			this.fetchData();
 		}
+
+		// this method renders HTML to our page
+
 	}, {
 		key: 'render',
 		value: function render() {
 			var _this3 = this;
 
+			// define columns for table
+			var columns = [{
+				Header: function Header() {
+					return _react2.default.createElement(
+						'div',
+						null,
+						_react2.default.createElement(_semanticUiReact.Button, { secondary: true, content: 'back', icon: 'left arrow', labelPosition: 'left', style: {
+								position: 'absolute',
+								left: 0
+							}, onClick: function onClick() {
+								_this3.props.prev();
+							} }),
+						_react2.default.createElement(
+							'h1',
+							{ style: { margin: 0 } },
+							'Test Case History: ',
+							_this3.state.name
+						)
+					);
+				},
+				columns: [{
+					id: 'last_run_date',
+					Header: 'Last Run Date',
+					minWidth: 150,
+					accessor: function accessor(r) {
+						return (0, _moment2.default)(r.last_run_date).format('dddd, MMMM Do YYYY, HH:mm');
+					}
+				}, {
+					Header: 'Status',
+					accessor: 'status',
+					maxWidth: 100,
+					Cell: function Cell(cell) {
+						var style = {};
+						if (cell.original.status === 'pass') style = { background: '#60BD68' };else if (cell.original.status === 'fail') style = { background: '#F15854' };else if (cell.original.status === 'skip') style = { background: '#AAAAAA' };
+						return _react2.default.createElement(
+							'div',
+							{ style: style },
+							cell.original.status
+						);
+					}
+				}, {
+					Header: 'Testing Team Comments',
+					maxWidth: 250,
+					Cell: function Cell(row) {
+						return _react2.default.createElement(
+							'a',
+							{ href: 'javascript:void(0)', onClick: function onClick() {
+									_this3.setState({
+										userCommentOpen: true,
+										modalTcId: row.original._id
+									});
+								} },
+							'View'
+						);
+					}
+				}, {
+					Header: 'Automation Team Comments',
+					maxWidth: 250,
+					Cell: function Cell(row) {
+						return _react2.default.createElement(
+							'a',
+							{ href: 'javascript:void(0)', onClick: function onClick() {
+									_this3.setState({
+										autoCommentOpen: true,
+										modalTcId: row.original._id
+									});
+								} },
+							'View'
+						);
+					}
+				}, {
+					Header: 'Error',
+					accessor: 'error',
+					maxWidth: 150,
+					Cell: function Cell(row) {
+						if (row.original.error) return _react2.default.createElement(
+							'a',
+							{ onClick: function onClick() {
+									_this3.setState({
+										errorModalOpen: true,
+										errorText: row.original.error
+									});
+								}, href: 'javascript:void(0)' },
+							'View'
+						);
+					}
+				}, {
+					Header: 'Screenshot',
+					accessor: 'screenshot',
+					maxWidth: 100,
+					Cell: function Cell(row) {
+						if (row.original.screenshot) return _react2.default.createElement(
+							'a',
+							{ target: '_blank', href: row.original.screenshot },
+							'Link'
+						);
+					}
+				}, {
+					Header: 'Jenkins Job',
+					accessor: 'job',
+					maxWidth: 100,
+					Cell: function Cell(row) {
+						return _react2.default.createElement(
+							'a',
+							{ target: '_blank', href: row.original.job },
+							'Link'
+						);
+					}
+				}]
+			}];
+
 			return _react2.default.createElement(
 				'div',
 				null,
-				_react2.default.createElement(
-					_semanticUiReact.Modal,
-					{ closeIcon: true, onClose: function onClose() {
-							_this3.setState({ userCommentOpen: false });
-						}, open: this.state.userCommentOpen },
-					_react2.default.createElement(
-						_semanticUiReact.Modal.Header,
-						null,
-						'Testing Team Comments'
-					),
-					_react2.default.createElement(
-						_semanticUiReact.Modal.Content,
-						{ scrolling: true },
-						_react2.default.createElement(
-							_semanticUiReact.Modal.Description,
-							null,
-							_react2.default.createElement(_userComments2.default, { id: this.state.modalTcId, route: 'userComment' })
-						)
-					)
-				),
-				_react2.default.createElement(
-					_semanticUiReact.Modal,
-					{ closeIcon: true, onClose: function onClose() {
-							_this3.setState({ autoCommentOpen: false });
-						}, open: this.state.autoCommentOpen },
-					_react2.default.createElement(
-						_semanticUiReact.Modal.Header,
-						null,
-						'Automation Team Comments'
-					),
-					_react2.default.createElement(
-						_semanticUiReact.Modal.Content,
-						{ scrolling: true },
-						_react2.default.createElement(
-							_semanticUiReact.Modal.Description,
-							null,
-							_react2.default.createElement(_userComments2.default, { id: this.state.modalTcId, route: 'autoComment' })
-						)
-					)
-				),
+				_react2.default.createElement(_CommentModal2.default, {
+					id: this.state.modalTcId,
+					heading: 'Testing Team Comments',
+					routeEndPoint: 'userComment',
+					visible: this.state.userCommentOpen,
+					onClose: function onClose() {
+						return _this3.setState({ userCommentOpen: false });
+					}
+				}),
+				_react2.default.createElement(_CommentModal2.default, {
+					id: this.state.modalTcId,
+					heading: 'Automation Team Comments',
+					routeEndPoint: 'autoComment',
+					visible: this.state.autoCommentOpen,
+					onClose: function onClose() {
+						return _this3.setState({ autoCommentOpen: false });
+					}
+				}),
 				_react2.default.createElement(
 					_semanticUiReact.Modal,
 					{ closeIcon: true, onClose: function onClose() {
@@ -112545,120 +112704,12 @@ var TC = function (_Component) {
 				),
 				_react2.default.createElement(_reactTable2.default, {
 					loading: this.state.loading,
-					data: this.state.data,
-					resizable: this.props.tableStyle.resizable,
+					data: this.state.data // dump data from state
+					, resizable: this.props.tableStyle.resizable,
 					className: this.props.tableStyle.className,
 					style: this.props.tableStyle.style,
 					defaultPageSize: 10,
-					columns: [{
-						Header: function Header() {
-							return _react2.default.createElement(
-								'div',
-								null,
-								_react2.default.createElement(_semanticUiReact.Button, { secondary: true, content: 'back', icon: 'left arrow', labelPosition: 'left', style: {
-										position: 'absolute',
-										left: 0
-									}, onClick: function onClick() {
-										_this3.props.prev();
-									} }),
-								_react2.default.createElement(
-									'h1',
-									{ style: { margin: 0 } },
-									'Test Case History: ',
-									_this3.state.name
-								)
-							);
-						},
-						columns: [{
-							id: 'last_run_date',
-							Header: 'Last Run Date',
-							minWidth: 150,
-							accessor: function accessor(r) {
-								return (0, _moment2.default)(r.last_run_date).format('dddd, MMMM Do YYYY, HH:mm');
-							}
-						}, {
-							Header: 'Status',
-							accessor: 'status',
-							maxWidth: 100,
-							Cell: function Cell(cell) {
-								var style = {};
-								if (cell.original.status === 'pass') style = { background: '#60BD68' };else if (cell.original.status === 'fail') style = { background: '#F15854' };else if (cell.original.status === 'skip') style = { background: '#AAAAAA' };
-								return _react2.default.createElement(
-									'div',
-									{ style: style },
-									cell.original.status
-								);
-							}
-						}, {
-							Header: 'Testing Team Comments',
-							maxWidth: 250,
-							Cell: function Cell(row) {
-								return _react2.default.createElement(
-									'a',
-									{ href: 'javascript:void(0)', onClick: function onClick() {
-											_this3.setState({
-												userCommentOpen: true,
-												modalTcId: row.original._id
-											});
-										} },
-									'View'
-								);
-							}
-						}, {
-							Header: 'Automation Team Comments',
-							maxWidth: 250,
-							Cell: function Cell(row) {
-								return _react2.default.createElement(
-									'a',
-									{ href: 'javascript:void(0)', onClick: function onClick() {
-											_this3.setState({
-												autoCommentOpen: true,
-												modalTcId: row.original._id
-											});
-										} },
-									'View'
-								);
-							}
-						}, {
-							Header: 'Error',
-							accessor: 'error',
-							maxWidth: 150,
-							Cell: function Cell(row) {
-								if (row.original.error) return _react2.default.createElement(
-									'a',
-									{ onClick: function onClick() {
-											_this3.setState({
-												errorModalOpen: true,
-												errorText: row.original.error
-											});
-										}, href: 'javascript:void(0)' },
-									'View'
-								);
-							}
-						}, {
-							Header: 'Screenshot',
-							accessor: 'screenshot',
-							maxWidth: 100,
-							Cell: function Cell(row) {
-								if (row.original.screenshot) return _react2.default.createElement(
-									'a',
-									{ target: '_blank', href: row.original.screenshot },
-									'Link'
-								);
-							}
-						}, {
-							Header: 'Jenkins Job',
-							accessor: 'job',
-							maxWidth: 100,
-							Cell: function Cell(row) {
-								return _react2.default.createElement(
-									'a',
-									{ target: '_blank', href: row.original.job },
-									'Link'
-								);
-							}
-						}]
-					}]
+					columns: columns // define columns
 				}),
 				_react2.default.createElement(
 					'h1',
@@ -112705,7 +112756,202 @@ var TC = function (_Component) {
 
 exports.default = TC;
 
-},{"./userComments":1367,"jquery":488,"moment":848,"react":1037,"react-table":1001,"recharts":1078,"semantic-ui-react":1245}],1366:[function(require,module,exports){
+},{"./CommentModal":1365,"./UserComments":1367,"jquery":488,"moment":848,"react":1037,"react-table":1001,"recharts":1078,"semantic-ui-react":1245}],1367:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _semanticUiReact = require('semantic-ui-react');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _moment = require('moment');
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var UserComments = function (_Component) {
+	_inherits(UserComments, _Component);
+
+	function UserComments(props) {
+		_classCallCheck(this, UserComments);
+
+		var _this = _possibleConstructorReturn(this, (UserComments.__proto__ || Object.getPrototypeOf(UserComments)).call(this, props));
+
+		_this.state = {
+			comments: [],
+			id: _this.props.id,
+			route: _this.props.route,
+			commentButtonLoading: false,
+			errorHidden: true,
+			formAuthor: '',
+			formText: ''
+		};
+		_this.formSubmitHandler = _this.formSubmitHandler.bind(_this);
+		_this.fetchData = _this.fetchData.bind(_this);
+		return _this;
+	}
+
+	_createClass(UserComments, [{
+		key: 'fetchData',
+		value: function fetchData() {
+			var _this2 = this;
+
+			_jquery2.default.get('/db/' + this.state.route + '/' + this.state.id).done(function (comments) {
+				_this2.setState({ comments: comments });
+			}).fail(function (err) {
+				console.log(err);
+			});
+		}
+	}, {
+		key: 'formSubmitHandler',
+		value: function formSubmitHandler(e) {
+			var _this3 = this;
+
+			e.preventDefault();
+			this.setState({ commentButtonLoading: true });
+			_jquery2.default.ajax({
+				url: '/db/' + this.state.route + '/' + this.state.id,
+				method: 'PUT',
+				data: {
+					author: this.state.formAuthor,
+					text: this.state.formText
+				}
+			}).then(function () {
+				_this3.fetchData();
+				_this3.setState({
+					formAuthor: '',
+					formText: '',
+					errorHidden: true,
+					commentButtonLoading: false
+				});
+			}).fail(function () {
+				_this3.fetchData();
+				_this3.setState({
+					errorHidden: false,
+					commentButtonLoading: false
+				});
+			});
+		}
+	}, {
+		key: 'componentDidMount',
+		value: function componentDidMount() {
+			this.fetchData();
+		}
+	}, {
+		key: 'render',
+		value: function render() {
+			var _this4 = this;
+
+			var commentList;
+			if (this.state.comments.length === 0) commentList = 'No comments posted yet';else commentList = this.state.comments.map(function (comment, index) {
+				return _react2.default.createElement(
+					_semanticUiReact.Comment,
+					{ key: index },
+					_react2.default.createElement(
+						_semanticUiReact.Comment.Content,
+						null,
+						_react2.default.createElement(
+							_semanticUiReact.Comment.Author,
+							null,
+							comment.author
+						),
+						_react2.default.createElement(
+							_semanticUiReact.Comment.Metadata,
+							null,
+							_react2.default.createElement(
+								'div',
+								null,
+								(0, _moment2.default)(comment.time).format('MM/DD/YYYY HH:mm')
+							)
+						),
+						_react2.default.createElement(
+							_semanticUiReact.Comment.Text,
+							null,
+							_react2.default.createElement(
+								'p',
+								null,
+								comment.text
+							)
+						)
+					),
+					_react2.default.createElement(_semanticUiReact.Divider, null)
+				);
+			});
+
+			return _react2.default.createElement(
+				_semanticUiReact.Comment.Group,
+				null,
+				_react2.default.createElement(
+					_semanticUiReact.Comment,
+					null,
+					_react2.default.createElement(
+						_semanticUiReact.Comment.Content,
+						null,
+						commentList
+					)
+				),
+				_react2.default.createElement(_semanticUiReact.Message, {
+					hidden: this.state.errorHidden,
+					error: true,
+					content: 'Missing nickname or comment content'
+				}),
+				_react2.default.createElement(
+					_semanticUiReact.Form,
+					{ reply: true, onSubmit: this.formSubmitHandler },
+					_react2.default.createElement(
+						_semanticUiReact.Form.Field,
+						null,
+						_react2.default.createElement(
+							'label',
+							null,
+							'Nickname'
+						),
+						_react2.default.createElement('input', { name: 'author', type: 'text', value: this.state.formAuthor, onChange: function onChange(e) {
+								_this4.setState({ formAuthor: e.target.value });
+							} })
+					),
+					_react2.default.createElement(
+						_semanticUiReact.Form.Field,
+						null,
+						_react2.default.createElement(
+							'label',
+							null,
+							'Comment'
+						),
+						_react2.default.createElement(_semanticUiReact.Form.TextArea, { name: 'text', value: this.state.formText, onChange: function onChange(e) {
+								_this4.setState({ formText: e.target.value });
+							} })
+					),
+					_react2.default.createElement(_semanticUiReact.Button, { content: 'Post Comment', labelPosition: 'left', icon: 'edit', type: 'submit', loading: this.state.commentButtonLoading, primary: true })
+				)
+			);
+		}
+	}]);
+
+	return UserComments;
+}(_react.Component);
+
+exports.default = UserComments;
+
+},{"jquery":488,"moment":848,"react":1037,"semantic-ui-react":1245}],1368:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -112799,218 +113045,6 @@ var App = function (_Component) {
 
 _reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById('root'));
 
-},{"./BP":1362,"./BPG":1363,"./BPGList":1364,"./TC":1365,"babel-polyfill":1,"react":1037,"react-dom":860}],1367:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _semanticUiReact = require('semantic-ui-react');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _jquery = require('jquery');
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-var _moment = require('moment');
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var ReactClass = function (_Component) {
-	_inherits(ReactClass, _Component);
-
-	function ReactClass(props) {
-		_classCallCheck(this, ReactClass);
-
-		return _possibleConstructorReturn(this, (ReactClass.__proto__ || Object.getPrototypeOf(ReactClass)).call(this, props));
-	}
-
-	_createClass(ReactClass, [{
-		key: 'render',
-		value: function render() {}
-	}]);
-
-	return ReactClass;
-}(_react.Component);
-
-var UserComments = function (_Component2) {
-	_inherits(UserComments, _Component2);
-
-	function UserComments(props) {
-		_classCallCheck(this, UserComments);
-
-		var _this2 = _possibleConstructorReturn(this, (UserComments.__proto__ || Object.getPrototypeOf(UserComments)).call(this, props));
-
-		_this2.state = {
-			comments: [],
-			id: _this2.props.id,
-			route: _this2.props.route,
-			commentButtonLoading: false,
-			errorHidden: true,
-			formAuthor: '',
-			formText: ''
-		};
-		_this2.formSubmitHandler = _this2.formSubmitHandler.bind(_this2);
-		_this2.fetchData = _this2.fetchData.bind(_this2);
-		return _this2;
-	}
-
-	_createClass(UserComments, [{
-		key: 'fetchData',
-		value: function fetchData() {
-			var _this3 = this;
-
-			_jquery2.default.get('/db/' + this.state.route + '/' + this.state.id).done(function (comments) {
-				_this3.setState({ comments: comments });
-			}).fail(function (err) {
-				console.log(err);
-			});
-		}
-	}, {
-		key: 'formSubmitHandler',
-		value: function formSubmitHandler(e) {
-			var _this4 = this;
-
-			e.preventDefault();
-			this.setState({ commentButtonLoading: true });
-			_jquery2.default.ajax({
-				url: '/db/' + this.state.route + '/' + this.state.id,
-				method: 'PUT',
-				data: {
-					author: this.state.formAuthor,
-					text: this.state.formText
-				}
-			}).then(function () {
-				_this4.fetchData();
-				_this4.setState({
-					formAuthor: '',
-					formText: '',
-					errorHidden: true,
-					commentButtonLoading: false
-				});
-			}).fail(function () {
-				_this4.fetchData();
-				_this4.setState({
-					errorHidden: false,
-					commentButtonLoading: false
-				});
-			});
-		}
-	}, {
-		key: 'componentDidMount',
-		value: function componentDidMount() {
-			this.fetchData();
-		}
-	}, {
-		key: 'render',
-		value: function render() {
-			var _this5 = this;
-
-			var commentList;
-			if (this.state.comments.length === 0) commentList = 'No comments posted yet';else commentList = this.state.comments.map(function (comment, index) {
-				return _react2.default.createElement(
-					_semanticUiReact.Comment,
-					{ key: index },
-					_react2.default.createElement(
-						_semanticUiReact.Comment.Content,
-						null,
-						_react2.default.createElement(
-							_semanticUiReact.Comment.Author,
-							null,
-							comment.author
-						),
-						_react2.default.createElement(
-							_semanticUiReact.Comment.Metadata,
-							null,
-							_react2.default.createElement(
-								'div',
-								null,
-								(0, _moment2.default)(comment.time).format('MM/DD/YYYY HH:mm')
-							)
-						),
-						_react2.default.createElement(
-							_semanticUiReact.Comment.Text,
-							null,
-							_react2.default.createElement(
-								'p',
-								null,
-								comment.text
-							)
-						)
-					),
-					_react2.default.createElement(_semanticUiReact.Divider, null)
-				);
-			});
-
-			return _react2.default.createElement(
-				_semanticUiReact.Comment.Group,
-				null,
-				_react2.default.createElement(
-					_semanticUiReact.Comment,
-					null,
-					_react2.default.createElement(
-						_semanticUiReact.Comment.Content,
-						null,
-						commentList
-					)
-				),
-				_react2.default.createElement(_semanticUiReact.Message, {
-					hidden: this.state.errorHidden,
-					error: true,
-					content: 'Missing nickname or comment content'
-				}),
-				_react2.default.createElement(
-					_semanticUiReact.Form,
-					{ reply: true, onSubmit: this.formSubmitHandler },
-					_react2.default.createElement(
-						_semanticUiReact.Form.Field,
-						null,
-						_react2.default.createElement(
-							'label',
-							null,
-							'Nickname'
-						),
-						_react2.default.createElement('input', { name: 'author', type: 'text', value: this.state.formAuthor, onChange: function onChange(e) {
-								_this5.setState({ formAuthor: e.target.value });
-							} })
-					),
-					_react2.default.createElement(
-						_semanticUiReact.Form.Field,
-						null,
-						_react2.default.createElement(
-							'label',
-							null,
-							'Comment'
-						),
-						_react2.default.createElement(_semanticUiReact.Form.TextArea, { name: 'text', value: this.state.formText, onChange: function onChange(e) {
-								_this5.setState({ formText: e.target.value });
-							} })
-					),
-					_react2.default.createElement(_semanticUiReact.Button, { content: 'Post Comment', labelPosition: 'left', icon: 'edit', type: 'submit', loading: this.state.commentButtonLoading, primary: true })
-				)
-			);
-		}
-	}]);
-
-	return UserComments;
-}(_react.Component);
-
-exports.default = UserComments;
-
-},{"jquery":488,"moment":848,"react":1037,"semantic-ui-react":1245}]},{},[1366]);
+},{"./BP":1362,"./BPG":1363,"./BPGList":1364,"./TC":1366,"babel-polyfill":1,"react":1037,"react-dom":860}]},{},[1368]);
 
 //# sourceMappingURL=sourcemaps/app.js.map
