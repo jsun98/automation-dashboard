@@ -15,7 +15,7 @@
     "plugin:react/recommended",
   ],
   "rules": {
-    "one-var": 1,
+    "one-var": 0,
     "no-console": 0,
     "import/no-nodejs-modules": 0,
     "import/no-commonjs": 0,

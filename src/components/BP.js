@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import $ from 'jquery'
 import { Button } from 'semantic-ui-react'
+import { Link } from 'react-router-dom'
 import Moment from 'moment'
 import ReactTable from 'react-table'
 
-
+// this class renders the BP details page, details see BPG.js and TC.js
 class BP extends Component {
 	constructor (props) {
 		super(props)
@@ -49,9 +50,7 @@ class BP extends Component {
 						Header: 'Test Case Name',
 						accessor: 'name',
 						minWidth: 200,
-						Cell: row => <a href='javascript:void(0)' onClick={e => {
-							this.props.next(row.original._id)
-						}}>{row.original._id}</a>,
+						Cell: row => <Link to={this.props.next + '/' + row.original._id}>{row.original._id}</Link>,
 					}, {
 						Header: 'Status',
 						accessor: 'status',

@@ -1,13 +1,13 @@
-import { Button, Modal } from 'semantic-ui-react'
+import { Button } from 'semantic-ui-react'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import React, { Component } from 'react'
 import $ from 'jquery'
 import Moment from 'moment'
 import ReactTable from 'react-table'
-import UserComments from './UserComments'
+import ErrorModal from './ErrorModal'
 import CommentModal from './CommentModal'
 
-
+// this class displays the testcase level page
 class TC extends Component {
 	constructor (props) {
 
@@ -21,6 +21,11 @@ class TC extends Component {
 			autoCommentOpen: false,
 			errorModalOpen: false,
 		}
+
+		// perform binding
+		this.closeUserModal = this.closeUserModal.bind(this)
+		this.closeAutoModal = this.closeAutoModal.bind(this)
+		this.closeErrorModal = this.closeErrorModal.bind(this)
 	}
 
 	// fetches data for this page from the server endpoint
@@ -55,6 +60,22 @@ class TC extends Component {
 	componentDidMount () {
 		this.fetchData()
 	}
+
+	// the following three functions are passed down to modal components to close them on click
+
+	closeUserModal () {
+		this.setState({ userCommentOpen: false })
+	}
+
+	closeAutoModal () {
+		this.setState({ autoCommentOpen: false })
+	}
+
+	closeErrorModal () {
+		this.setState({ errorModalOpen: false })
+	}
+
+
 
 	// this method renders HTML to our page
 	render () {
@@ -143,35 +164,27 @@ class TC extends Component {
 
 		return (
 			<div>
+				{ /* define modals for comments and error (initially hidden) */}
 				<CommentModal
-					id={this.state.modalTcId}
+					id={this.state.modalTcId} // id is used for getting comments from server endpoint
 					heading='Testing Team Comments'
-					routeEndPoint='userComment'
-					visible={this.state.userCommentOpen}
-					onClose={() => this.setState({ userCommentOpen: false }) }
+					routeEndPoint='userComment' // this is also used for getting comments from server endpoint
+					visible={this.state.userCommentOpen} // controls whether modal is hidden or shown
+					onClose={this.closeUserModal} // closes modal on click
 				/>
 				<CommentModal
 					id={this.state.modalTcId}
 					heading='Automation Team Comments'
 					routeEndPoint='autoComment'
 					visible={this.state.autoCommentOpen}
-					onClose={() => this.setState({ autoCommentOpen: false }) }
+					onClose={this.closeAutoModal}
 				/>
 
-				<Modal closeIcon={true} onClose={() => {
-					this.setState({
-						errorModalOpen: false,
-						errorText: '',
-					})
-				}} open={this.state.errorModalOpen}>
-					<Modal.Header>Error Details</Modal.Header>
-					<Modal.Content scrolling>
-						<Modal.Description>
-							{this.state.errorText}
-						</Modal.Description>
-					</Modal.Content>
-				</Modal>
-
+				<ErrorModal
+					content={this.state.errorText} // error text
+					visible={this.state.errorModalOpen}
+					onClose={this.closeErrorModal}
+				/>
 				{/* Renders table */}
 				<ReactTable
 					loading={ this.state.loading }
@@ -183,6 +196,8 @@ class TC extends Component {
 					columns={ columns } // define columns
 				/>
 				<h1 style={{ textAlign: 'center' }}>Graph</h1>
+
+				{ /* defines line chart */}
 				<ResponsiveContainer height={500}>
 					<LineChart
 						data={ this.state.data }

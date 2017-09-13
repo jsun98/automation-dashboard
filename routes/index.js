@@ -4,18 +4,24 @@ const express = require('express'),
 /* GET home page. */
 
 router.get('/', (req, res, next) => {
-	res.render('directory', { title: 'Automation Dashboard' })
+	res.render('directory')
 })
 
-router.get('/:env', (req, res, next) => {
+router.get('/BPG', (req, res, next) => {
+	if (!req.session.env) res.redirect('/')
+	res.render('index', { env: req.session.env })
+})
+
+router.get('/env/:env', (req, res, next) => {
 	req.params.env = req.params.env.toUpperCase()
 	if ([ 'TST', 'SIT2', 'OAT' ].indexOf(req.params.env) === -1)
-		next(new Error('Env Not Found'))
+		return next(new Error('Env Not Found'))
 	req.session.env = req.params.env
-	res.render('index', {
-		title: 'Jenkins Dashboard',
-		env: req.session.env,
-	})
+	res.redirect('/BPG')
+})
+
+router.get('*', (req, res) => {
+	res.redirect('/')
 })
 
 module.exports = router

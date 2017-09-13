@@ -100,8 +100,8 @@ app.use(cookieSession({
 }))
 mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost:27017/dashboard', { useMongoClient: true })
 
-app.use('/', require('./routes/index'))
 app.use('/db', require('./routes/REST'))
+app.use('/', require('./routes/index'))
 
 
 

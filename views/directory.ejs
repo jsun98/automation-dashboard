@@ -28,9 +28,7 @@
 			$('button').on('click', function () {
 				$button = $(this)
 				$button.addClass('loading')
-				setTimeout(function () {
-					window.location.href = '/'+$button.text()
-				}, 1000)
+				window.location.href = '/env/'+$button.text()
 			})
 		})(jQuery)
 	</script>
