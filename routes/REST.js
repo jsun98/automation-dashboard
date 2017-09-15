@@ -8,6 +8,15 @@ router.route('/BPG')
 	.get((req, res, next) => {
 		TC.aggregate([
 			{ $match: { env: req.session.env } },
+			{ $sort: { last_run_date: -1 } },
+			{
+				$group: {
+					_id: '$name',
+					last_run_date: { $first: '$last_run_date' },
+					status: { $first: '$status' },
+					BPG: { $first: '$BPG' },
+				},
+			},
 			{
 				$group: {
 					_id: '$BPG',
@@ -37,6 +46,15 @@ router.route('/BPGByName/:name')
 				$match: {
 					env: req.session.env,
 					BPG: BPGName,
+				},
+			},
+			{ $sort: { last_run_date: -1 } },
+			{
+				$group: {
+					_id: '$name',
+					last_run_date: { $first: '$last_run_date' },
+					status: { $first: '$status' },
+					BP: { $first: '$BP' },
 				},
 			},
 			{
@@ -128,6 +146,7 @@ router.route('/userComment/:id')
 		if (!req.body.author || !req.body.text) return res.status(400).end()
 		TC.findByIdAndUpdate(req.params.id, { $push: { userComment: req.body } })
 			.then(testCase => {
+				if (!testCase) res.status(404).send('test case not found')
 				res.status(200).send()
 			})
 			.catch(err => {
@@ -140,7 +159,7 @@ router.route('/autoComment/:id')
 	.get((req, res, next) => {
 		TC.findById(req.params.id, 'autoComment')
 			.then(testCase => {
-				if (!testCase) return res.status(404).send()
+				if (!testCase) return res.status(404).send('test case not found')
 				testCase.autoComment.sort((a, b) => {
 					var keyA = new Date(a.time),
 						keyB = new Date(b.time)
@@ -158,6 +177,7 @@ router.route('/autoComment/:id')
 		if (!req.body.author || !req.body.text) return res.status(400).end()
 		TC.findByIdAndUpdate(req.params.id, { $push: { autoComment: req.body } })
 			.then(testCase => {
+				if (!testCase) res.status(404).send('test case not found')
 				res.status(200).send()
 			})
 			.catch(err => {
@@ -209,6 +229,7 @@ router.route('/TC')
 		if (req.body.job && !req.body.job.includes('http'))
 			req.body.job = 'http://' + req.body.job
 		const newTestCase = new TC(req.body)
+
 		newTestCase.save()
 			.then(testCase => {
 				res.status(200).send(testCase._id)
@@ -217,7 +238,6 @@ router.route('/TC')
 				next(err)
 			})
 	})
-
 
 router.route('/updatejenkinsjobbyname/:name')
 	.put((req, res, next) => {
@@ -233,6 +253,7 @@ router.route('/getjenkinsjobbyname/:name')
 	.get((req, res, next) => {
 		TC.findOne({ name: req.params.name }, (err, testCase) => {
 			if (err) return next(err)
+			if (!testCase) return res.status(404).send('testcase not found')
 			res.status(200).send(testCase.job)
 		})
 	})

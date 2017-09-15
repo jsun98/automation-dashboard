@@ -83,27 +83,36 @@ const
 		screenshot: String,
 	})
 
-/* TestCaseSchema.pre('save', function (next) {
+TestCaseSchema.pre('save', function (next) {
 	this.constructor.findOne({
 		name: this.name,
 		BP: { $ne: this.BP },
 	}).exec()
 		.then(testCase => {
 			if (testCase)
-				return next(new Error('test case "' + this.name + '" already exists in BPG "' + testCase.BPG + '" and so cannot be added to BPG "' + this.BPG + '"'))
+				return next(new Error('Test case "' + this.name + '" already exists in BP "' + testCase.BP + '" and so cannot be saved to BP "' + this.BP + '"'))
 			return 	this.constructor.findOne({
+				name: this.name,
+				BPG: { $ne: this.BPG },
+			}).exec()
+		})
+		.then(testCase => {
+			if (testCase)
+				return next(new Error('Test case "' + this.name + '" already exists in BPG "' + testCase.BPG + '" and so cannot be added to BPG "' + this.BPG + '"'))
+			return this.constructor.findOne({
 				BP: this.BP,
 				BPG: { $ne: this.BPG },
 			}).exec()
 		})
 		.then(testCase => {
-			if (!testCase) next()
-			else next(new Error('Business process "' + this.BP + '" already exists in BPG "' + testCase.BPG + '" and so cannot be a part of BPG "' + this.BPG + '"'))
+			if (testCase)
+				return next(new Error('Business process "' + this.BP + '" already exists in BPG "' + testCase.BPG + '" and so cannot be a part of BPG "' + this.BPG + '"'))
+			next()
 		})
 		.catch(err => {
 			next(err)
 		})
 
-}) */
+})
 
 module.exports = mongoose.model('TC', TestCaseSchema)
