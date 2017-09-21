@@ -115002,22 +115002,33 @@ var BP = function (_Component) {
 					}, {
 						id: 'last_run_date',
 						Header: 'Last Run',
-						minWidth: 150,
+						minWidth: 100,
 						accessor: function accessor(r) {
 							return (0, _moment2.default)(r.last_run_date).format('MMM Do, YYYY HH:mm:ss');
 						}
 					}, {
 						Header: 'Jenkins Job',
 						accessor: 'job',
-						maxWidth: 100,
+						maxWidth: 150,
 						Cell: function Cell(row) {
 							return row.original.job ? _react2.default.createElement(
 								'a',
 								{ target: '_blank', href: row.original.job },
-								'Link'
+								'JobLink'
 							) : '';
 						}
-					}]
+					}, {
+					Header: 'Screenshot',
+					accessor: 'screenshot',
+					maxWidth: 150,
+					Cell: function Cell(row) {
+						if (row.original.screenshot) return _react2.default.createElement(
+							'a',
+							{ target: '_blank', href: row.original.screenshot },
+							'Link'
+						);
+					}
+				}]
 				}]
 			});
 		}
@@ -115769,7 +115780,7 @@ var TC = function (_Component) {
 							'View'
 						);
 					}
-				}, {
+				}/* , {
 					Header: 'Screenshot',
 					accessor: 'screenshot',
 					maxWidth: 100,
@@ -115780,7 +115791,7 @@ var TC = function (_Component) {
 							'Link'
 						);
 					}
-				}]
+				} */]
 			}];
 
 			return _react2.default.createElement(

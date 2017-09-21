@@ -95,6 +95,7 @@ router.route('/BPByName/:name')
 					last_run_date: { $first: '$last_run_date' },
 					status: { $first: '$status' },
 					job: { $first: '$job' },
+					screenshot: { $first: '$screenshot' },
 				},
 			}, { $sort: { last_run_date: -1 } },
 		])
