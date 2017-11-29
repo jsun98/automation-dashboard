@@ -108,6 +108,41 @@ router.route('/BPByName/:name')
 			})
 	})
 
+// fetches details of a single BP by name, used for BP page
+router.route('/BPByBPandBPG/:bpName/:bpgName')
+	.get((req, res, next) => {
+		const BPName = req.params.bpName
+		const BPGName = req.params.bpgName
+
+		// we need to perform a aggregation (basically calculate the total number of pass, fail, skip, which is not directly stored in database)
+		TC.aggregate([
+			{
+				$match: {
+					env: req.session.env,
+					BP: BPName,
+					BPG: BPGName,
+				},
+			},
+			{ $sort: { last_run_date: -1 } },
+			{
+				$group: {
+					_id: '$name',
+					last_run_date: { $first: '$last_run_date' },
+					status: { $first: '$status' },
+					job: { $first: '$job' },
+					screenshot: { $first: '$screenshot' },
+				},
+			}, { $sort: { last_run_date: -1 } },
+		])
+			.then(TCs => {
+				if (!TCs) return res.status(400).send()
+				res.status(200).send(TCs)
+			})
+			.catch(err => {
+				next(err)
+			})
+	})
+
 // fetches all details of a Testcase by name, used for TC page
 router.route('/TCByName/:name')
 	.get((req, res, next) => {

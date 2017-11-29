@@ -114931,7 +114931,7 @@ var BP = function (_Component) {
 		value: function fetchData() {
 			var _this2 = this;
 
-			_jquery2.default.get('/db/BPByName/' + this.props.id).done(function (data) {
+			_jquery2.default.get('/db/BPByBPandBPG/' + this.props.bpName + '/' + this.props.bpgName).done(function (data) {
 				_this2.setState({
 					name: _this2.props.id,
 					data: data,
@@ -114970,10 +114970,8 @@ var BP = function (_Component) {
 							_react2.default.createElement(
 								'h1',
 								{ style: { margin: 0 } },
-								'BP: ',
+								'Business Process Details: ',
 								_this3.state.name
-							
-								
 							)
 						);
 					},
@@ -114989,25 +114987,9 @@ var BP = function (_Component) {
 							);
 						}
 					}, {
-						Header: 'Total Passed Run',
-						accessor: 'data',
-						maxWidth: 150,
-						
-					},{
-						Header: ' Total Failed Run',
+						Header: 'Status',
 						accessor: 'status',
-						maxWidth: 150,
-						Cell: function Cell(row) {
-							return _react2.default.createElement(
-								_reactRouterDom.Link,
-								{ to: _this3.props.next + '/' + row.original._id },
-								row.original._id
-							);
-						}
-					},{
-						Header: ' Last Run Status',
-						accessor: 'status',
-						maxWidth: 150,
+						maxWidth: 100,
 						Cell: function Cell(cell) {
 							var style = {};
 							if (cell.original.status === 'pass') style = { background: '#60BD68' };else if (cell.original.status === 'fail') style = { background: '#F15854' };else if (cell.original.status === 'skip') style = { background: '#AAAAAA' };
@@ -115020,33 +115002,22 @@ var BP = function (_Component) {
 					}, {
 						id: 'last_run_date',
 						Header: 'Last Run',
-						minWidth: 100,
+						minWidth: 150,
 						accessor: function accessor(r) {
 							return (0, _moment2.default)(r.last_run_date).format('MMM Do, YYYY HH:mm:ss');
 						}
 					}, {
 						Header: 'Jenkins Job',
 						accessor: 'job',
-						maxWidth: 150,
+						maxWidth: 100,
 						Cell: function Cell(row) {
 							return row.original.job ? _react2.default.createElement(
 								'a',
 								{ target: '_blank', href: row.original.job },
-								'JobLink'
+								'Link'
 							) : '';
 						}
-					}, {
-					Header: 'Screenshot',
-					accessor: 'screenshot',
-					maxWidth: 150,
-					Cell: function Cell(row) {
-						if (row.original.screenshot) return _react2.default.createElement(
-							'a',
-							{ target: '_blank', href: row.original.screenshot },
-							'Link'
-						);
-					}
-				}]
+					}]
 				}]
 			});
 		}
@@ -115156,7 +115127,7 @@ var BPG = function (_Component) {
 						_react2.default.createElement(
 							'h1',
 							{ style: { margin: 0 } },
-							'BPG: ',
+							'Business Process Group Details: ',
 							_this3.state.name
 						)
 					);
@@ -115168,7 +115139,7 @@ var BPG = function (_Component) {
 					Cell: function Cell(row) {
 						return _react2.default.createElement(
 							_reactRouterDom.Link,
-							{ to: _this3.props.next + '/' + row.original._id },
+							{ to: _this3.props.next + '/' + row.original._id + '/' + _this3.props.id },
 							row.original._id
 						);
 					}
@@ -115798,7 +115769,7 @@ var TC = function (_Component) {
 							'View'
 						);
 					}
-				}/* , {
+				}, {
 					Header: 'Screenshot',
 					accessor: 'screenshot',
 					maxWidth: 100,
@@ -115809,7 +115780,7 @@ var TC = function (_Component) {
 							'Link'
 						);
 					}
-				} */]
+				}]
 			}];
 
 			return _react2.default.createElement(
@@ -116157,7 +116128,7 @@ var BPGWrapper = function BPGWrapper(_ref) {
 var BPWrapper = function BPWrapper(_ref2) {
 	var match = _ref2.match,
 	    history = _ref2.history;
-	return _react2.default.createElement(_BP2.default, { next: '/TC', prev: history.goBack, id: match.params.id, tableStyle: tableStyle });
+	return _react2.default.createElement(_BP2.default, { next: '/TC', prev: history.goBack, bpName: match.params.bpName, bpgName: match.params.bpgName, tableStyle: tableStyle });
 };
 var TCWrapper = function TCWrapper(_ref3) {
 	var match = _ref3.match,
@@ -116183,7 +116154,7 @@ var App = function App() {
 			null,
 			_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/BPG', component: BPGListwr }),
 			_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/BPG/:id', component: BPGwr }),
-			_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/BP/:id', component: BPwr }),
+			_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/BP/:bpName/:bpgName', component: BPwr }),
 			_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/TC/:id', component: TCwr })
 		)
 	);
@@ -116193,5 +116164,3 @@ var App = function App() {
 _reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById('root'));
 
 },{"./BP":1395,"./BPG":1396,"./BPGList":1397,"./TC":1400,"babel-polyfill":1,"react":1070,"react-dom":868,"react-router-dom":1009}]},{},[1402]);
-
-//# sourceMappingURL=sourcemaps/app.js.map

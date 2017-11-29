@@ -13,7 +13,7 @@ class BP extends Component {
 	}
 
 	fetchData () {
-		$.get('/db/BPByName/' + this.props.id)
+		$.get('/db/BPByBPandBPG/' + this.props.bpName + '/' + this.props.bpgName)
 			.done(data => {
 				this.setState({
 					name: this.props.id,

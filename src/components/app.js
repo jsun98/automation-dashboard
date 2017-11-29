@@ -24,7 +24,7 @@ const tableStyle = {
 // wrap components to gain access to the 'match' object for frontend routing
 const BPGListWrapper = () => <BPGList next='/BPG' tableStyle={tableStyle} />
 const BPGWrapper = ({ match, history }) => <BPG next='/BP' prev={history.goBack} id={match.params.id} tableStyle={tableStyle} />
-const BPWrapper = ({ match, history }) => <BP next='/TC' prev={history.goBack} id={match.params.id} tableStyle={tableStyle} />
+const BPWrapper = ({ match, history }) => <BP next='/TC' prev={history.goBack} bpName={match.params.bpName} bpgName={match.params.bpgName} tableStyle={tableStyle} />
 const TCWrapper = ({ match, history }) => <TC prev={history.goBack} id={match.params.id} tableStyle={tableStyle} />
 
 // further wrap the wrapper components to gain access to browser history
@@ -41,7 +41,7 @@ const App = () => (
 		<div>
 			<Route exact path="/BPG" component={BPGListwr}/>
 			<Route exact path="/BPG/:id" component={BPGwr}/>
-			<Route exact path="/BP/:id" component={BPwr}/>
+			<Route exact path="/BP/:bpName/:bpgName" component={BPwr}/>
 			<Route exact path="/TC/:id" component={TCwr}/>
 		</div>
 	</Router>

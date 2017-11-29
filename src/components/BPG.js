@@ -47,7 +47,7 @@ class BPG extends Component {
 				Header: 'Business Process Name',
 				accessor: 'name',
 				minWidth: 200,
-				Cell: row => <Link to={this.props.next + '/' + row.original._id}>{row.original._id}</Link>,
+				Cell: row => <Link to={this.props.next + '/' + row.original._id + '/' + this.props.id}>{row.original._id}</Link>,
 			}, {
 				Header: () => <div
 					style={{
