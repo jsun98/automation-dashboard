@@ -36,7 +36,7 @@ const
 		BP: {
 			type: String,
 			required: true,
-			lowercase: true,
+			lowercase: false,
 			set: name => name.toUpperCase(),
 			/* validate: {
 				validator (v) {
@@ -50,16 +50,17 @@ const
 		BPG: {
 			type: String,
 			required: true,
-			lowercase: true,
+			lowercase: false,
 			set: name => name.toUpperCase(),
 			enum: {
-				message: '{VALUE} is not one of the accepted BPG names, which should be one of bpg1, bpg2, bpg3, bpg4, bpg5, bpg6',
-				values: [ 'bpg1',
-					'bpg2',
-					'bpg3',
-					'bpg4',
-					'bpg5',
-					'bpg6' ],
+				message: '{VALUE} is not one of the accepted BPG names, which should be one of BPG1, BPG2, BPG3, BPG4, BPG5, BPG6, SMOKETEST',
+				values: [ 'BPG1',
+					'BPG2',
+					'BPG3',
+					'BPG4',
+					'BPG5',
+					'BPG6',
+                    'SMOKETEST'],
 			},
 		},
 		userComment: [ {
@@ -99,16 +100,17 @@ TestCaseSchema.pre('save', function (next) {
 		.then(testCase => {
 			if (testCase)
 				return next(new Error('Test case "' + this.name + '" already exists in BPG "' + testCase.BPG + '" and so cannot be added to BPG "' + this.BPG + '"'))
-			return this.constructor.findOne({
+/*			return this.constructor.findOne({
 				BP: this.BP,
 				BPG: { $ne: this.BPG },
-			}).exec()
+			}).exec()*/
+			next()
 		})
-		.then(testCase => {
+/*		.then(testCase => {
 			if (testCase)
 				return next(new Error('Business process "' + this.BP + '" already exists in BPG "' + testCase.BPG + '" and so cannot be a part of BPG "' + this.BPG + '"'))
 			next()
-		})
+		})*/
 		.catch(err => {
 			next(err)
 		})

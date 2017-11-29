@@ -114970,8 +114970,10 @@ var BP = function (_Component) {
 							_react2.default.createElement(
 								'h1',
 								{ style: { margin: 0 } },
-								'Business Process Details: ',
+								'BP: ',
 								_this3.state.name
+							
+								
 							)
 						);
 					},
@@ -114987,9 +114989,25 @@ var BP = function (_Component) {
 							);
 						}
 					}, {
-						Header: 'Status',
+						Header: 'Total Passed Run',
+						accessor: 'data',
+						maxWidth: 150,
+						
+					},{
+						Header: ' Total Failed Run',
 						accessor: 'status',
-						maxWidth: 100,
+						maxWidth: 150,
+						Cell: function Cell(row) {
+							return _react2.default.createElement(
+								_reactRouterDom.Link,
+								{ to: _this3.props.next + '/' + row.original._id },
+								row.original._id
+							);
+						}
+					},{
+						Header: ' Last Run Status',
+						accessor: 'status',
+						maxWidth: 150,
 						Cell: function Cell(cell) {
 							var style = {};
 							if (cell.original.status === 'pass') style = { background: '#60BD68' };else if (cell.original.status === 'fail') style = { background: '#F15854' };else if (cell.original.status === 'skip') style = { background: '#AAAAAA' };
@@ -115138,7 +115156,7 @@ var BPG = function (_Component) {
 						_react2.default.createElement(
 							'h1',
 							{ style: { margin: 0 } },
-							'Business Process Group Details: ',
+							'BPG: ',
 							_this3.state.name
 						)
 					);
