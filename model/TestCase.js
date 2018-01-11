@@ -27,10 +27,10 @@ const
 		},
 		env: {
 			type: String,
-			enum: [ 'TST', 'SIT2', 'OAT' ],
+			enum: [ 'TST', 'SIT2', 'OAT', 'SIT3','CSIT' ],
 			uppercase: true,
 			required: true,
-			default: 'SIT2',
+			default: 'SIT3',
 			set: name => name.toUpperCase(),
 		},
 		BP: {
@@ -72,13 +72,22 @@ const
 			},
 		} ],
 		autoComment: [ {
-			author: String,
-			text: String,
-			time: {
-				type: Date,
-				default: Date(),
-			},
-		} ],
+            author: String,
+            text: String,
+            time: {
+                type: Date,
+                default: Date(),
+            },
+        } ],
+        Comments: [ {
+            author: String,
+            text: String,
+            time: {
+                type: Date,
+                default: Date(),
+            },
+        } ],
+		bugId: String,
 		job: String,
 		error: String,
 		screenshot: String,

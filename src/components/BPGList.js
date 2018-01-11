@@ -42,7 +42,7 @@ class BPGList extends Component {
 			columns: [ {
 				Header: 'Business Process Group Name',
 				accessor: 'name',
-				minWidth: 200,
+				minWidth: 300,
 				Cell: row => <Link to={this.props.next + '/' + row.original._id}>{row.original._id}</Link>,
 			}, {
 				Header: () => <div
@@ -71,11 +71,6 @@ class BPGList extends Component {
 					}}>Skip</div>,
 				accessor: 'skip',
 				maxWidth: 100,
-			}, {
-				id: 'last_run_date',
-				Header: 'Last Run',
-				minWidth: 150,
-				accessor: r => Moment(r.last_run_date).format('MMM Do, YYYY HH:mm:ss'),
 			} ],
 		} ]
 

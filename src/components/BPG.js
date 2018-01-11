@@ -75,12 +75,12 @@ class BPG extends Component {
 					}}>Skip</div>,
 				accessor: 'skip',
 				maxWidth: 100,
-			}, {
+			}/*, {
 				id: 'last_run_date',
 				Header: 'Last Run',
 				minWidth: 150,
 				accessor: r => Moment(r.last_run_date).format('MMM Do, YYYY HH:mm:ss'),
-			} ],
+			} */],
 		} ]
 
 		return (

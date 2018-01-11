@@ -16,7 +16,7 @@ router.get('/BPG', (req, res, next) => {
 // save env into session
 router.get('/env/:env', (req, res, next) => {
 	req.params.env = req.params.env.toUpperCase()
-	if ([ 'TST', 'SIT2', 'OAT' ].indexOf(req.params.env) === -1)
+	if ([ 'TST', 'SIT2', 'OAT', 'CSIT','SIT3' ].indexOf(req.params.env) === -1)
 		return next(new Error('Env Not Found'))
 	req.session.env = req.params.env
 	res.redirect('/BPG')

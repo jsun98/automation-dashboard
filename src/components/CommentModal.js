@@ -2,7 +2,7 @@ import React from 'react'
 import { Modal } from 'semantic-ui-react'
 import UserComments from './UserComments'
 
-// this class displays a comment modal (used for both automatio and user comments)
+// this class displays a comment modal (used for both automation and user comments)
 const CommentModal = ({ id, heading, routeEndPoint, visible, onClose }) => (
 	<Modal closeIcon={true} onClose={onClose} open={visible}>
 		<Modal.Header>{heading}</Modal.Header>

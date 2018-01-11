@@ -114905,6 +114905,14 @@ var _reactTable = require('react-table');
 
 var _reactTable2 = _interopRequireDefault(_reactTable);
 
+var _CommentModal = require('./CommentModal');
+
+var _CommentModal2 = _interopRequireDefault(_CommentModal);
+
+var _BugIdModal = require('./BugIdModal');
+
+var _BugIdModal2 = _interopRequireDefault(_BugIdModal);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -114922,7 +114930,13 @@ var BP = function (_Component) {
 
 		var _this = _possibleConstructorReturn(this, (BP.__proto__ || Object.getPrototypeOf(BP)).call(this, props));
 
-		_this.state = { loading: true };
+		_this.state = { loading: true,
+			commentOpen: false,
+			bugIdOpen: false
+		};
+
+		_this.closeComments = _this.closeComments.bind(_this);
+		_this.closeBugId = _this.closeBugId.bind(_this);
 		return _this;
 	}
 
@@ -114940,6 +114954,16 @@ var BP = function (_Component) {
 			});
 		}
 	}, {
+		key: 'closeComments',
+		value: function closeComments() {
+			this.setState({ commentOpen: false });
+		}
+	}, {
+		key: 'closeBugId',
+		value: function closeBugId() {
+			this.setState({ bugIdOpen: false });
+		}
+	}, {
 		key: 'componentDidMount',
 		value: function componentDidMount() {
 			this.fetchData();
@@ -114949,77 +114973,125 @@ var BP = function (_Component) {
 		value: function render() {
 			var _this3 = this;
 
-			return _react2.default.createElement(_reactTable2.default, {
-				loading: this.state.loading,
-				data: this.state.data,
-				resizable: this.props.tableStyle.resizable,
-				className: this.props.tableStyle.className,
-				style: this.props.tableStyle.style,
-				defaultPageSize: 10,
-				columns: [{
-					Header: function Header() {
-						return _react2.default.createElement(
-							'div',
-							null,
-							_react2.default.createElement(_semanticUiReact.Button, { secondary: true, content: 'back', icon: 'left arrow', labelPosition: 'left', style: {
-									position: 'absolute',
-									left: 0
-								}, onClick: function onClick() {
-									_this3.props.prev();
-								} }),
-							_react2.default.createElement(
-								'h1',
-								{ style: { margin: 0 } },
-								'Business Process Details: ',
-								_this3.state.name
-							)
-						);
-					},
+			return _react2.default.createElement(
+				'div',
+				null,
+				_react2.default.createElement(_CommentModal2.default, {
+					id: this.state.modalTcId // id is used for getting comments from server endpoint
+					, heading: 'Comments',
+					routeEndPoint: 'Comment' // this is also used for getting comments from server endpoint
+					, visible: this.state.commentOpen // controls whether modal is hidden or shown
+					, onClose: this.closeComments // closes modal on click
+				}),
+				_react2.default.createElement(_BugIdModal2.default, {
+					id: this.state.modalTcId // id is used for getting comments from server endpoint
+					, heading: 'Bug Id',
+					routeEndPoint: 'bug id' // this is also used for getting comments from server endpoint
+					, visible: this.state.bugIdOpen // controls whether modal is hidden or shown
+					, onClose: this.closeBugId // closes modal on click
+				}),
+				_react2.default.createElement(_reactTable2.default, {
+					loading: this.state.loading,
+					data: this.state.data,
+					resizable: this.props.tableStyle.resizable,
+					className: this.props.tableStyle.className,
+					style: this.props.tableStyle.style,
+					defaultPageSize: 10,
 					columns: [{
-						Header: 'Test Case Name',
-						accessor: 'name',
-						minWidth: 200,
-						Cell: function Cell(row) {
-							return _react2.default.createElement(
-								_reactRouterDom.Link,
-								{ to: _this3.props.next + '/' + row.original._id },
-								row.original._id
-							);
-						}
-					}, {
-						Header: 'Status',
-						accessor: 'status',
-						maxWidth: 100,
-						Cell: function Cell(cell) {
-							var style = {};
-							if (cell.original.status === 'pass') style = { background: '#60BD68' };else if (cell.original.status === 'fail') style = { background: '#F15854' };else if (cell.original.status === 'skip') style = { background: '#AAAAAA' };
+						Header: function Header() {
 							return _react2.default.createElement(
 								'div',
-								{ style: style },
-								cell.original.status
+								null,
+								_react2.default.createElement(_semanticUiReact.Button, { secondary: true, content: 'back', icon: 'left arrow', labelPosition: 'left', style: {
+										position: 'absolute',
+										left: 0
+									}, onClick: function onClick() {
+										_this3.props.prev();
+									} }),
+								_react2.default.createElement(
+									'h1',
+									{ style: { margin: 0 } },
+									'Business Process Details: ',
+									_this3.state.name
+								)
 							);
-						}
-					}, {
-						id: 'last_run_date',
-						Header: 'Last Run',
-						minWidth: 150,
-						accessor: function accessor(r) {
-							return (0, _moment2.default)(r.last_run_date).format('MMM Do, YYYY HH:mm:ss');
-						}
-					}, {
-						Header: 'Jenkins Job',
-						accessor: 'job',
-						maxWidth: 100,
-						Cell: function Cell(row) {
-							return row.original.job ? _react2.default.createElement(
-								'a',
-								{ target: '_blank', href: row.original.job },
-								'Link'
-							) : '';
-						}
+						},
+						columns: [{
+							Header: 'Test Case Name',
+							accessor: 'name',
+							minWidth: 200,
+							Cell: function Cell(row) {
+								return _react2.default.createElement(
+									_reactRouterDom.Link,
+									{ to: _this3.props.next + '/' + row.original._id },
+									row.original._id
+								);
+							}
+						}, {
+							Header: 'Status',
+							accessor: 'status',
+							maxWidth: 100,
+							Cell: function Cell(cell) {
+								var style = {};
+								if (cell.original.status === 'pass') style = { background: '#60BD68' };else if (cell.original.status === 'fail') style = { background: '#F15854' };else if (cell.original.status === 'skip') style = { background: '#AAAAAA' };
+								return _react2.default.createElement(
+									'div',
+									{ style: style },
+									cell.original.status
+								);
+							}
+						}, {
+							Header: 'Comments',
+							maxWidth: 250,
+							Cell: function Cell(row) {
+								return _react2.default.createElement(
+									'a',
+									{ href: 'javascript:void(0)', onClick: function onClick() {
+											_this3.setState({
+												commentOpen: true,
+												modalTcId: row.original._id
+											});
+										} },
+									'View'
+								);
+							}
+						}, {
+							Header: 'Bug ID',
+							maxWidth: 250,
+							Cell: function Cell(row) {
+								return _react2.default.createElement(
+									'a',
+									{ href: 'javascript:void(0)', onClick: function onClick() {
+											_this3.setState({
+												bugIdOpen: true,
+												modalTcId: row.original._id
+											});
+										} },
+									'View'
+								);
+							}
+						}, {
+							id: 'last_run_date',
+							Header: 'Last Run',
+							minWidth: 150,
+							accessor: function accessor(r) {
+								return (0, _moment2.default)(r.last_run_date).format('MMM Do, YYYY HH:mm:ss');
+							}
+						}, {
+							Header: 'Jenkins Job',
+							accessor: 'job',
+							maxWidth: 100,
+							Cell: function Cell(row) {
+								return row.original.job ? _react2.default.createElement(
+									'a',
+									{ target: '_blank', href: row.original.job },
+									'Link'
+								) : '';
+							}
+						}]
 					}]
-				}]
-			});
+				})
+			);
 		}
 	}]);
 
@@ -115028,7 +115100,7 @@ var BP = function (_Component) {
 
 exports.default = BP;
 
-},{"jquery":492,"moment":856,"react":1070,"react-router-dom":1009,"react-table":1034,"semantic-ui-react":1279}],1396:[function(require,module,exports){
+},{"./BugIdModal":1398,"./CommentModal":1399,"jquery":492,"moment":856,"react":1070,"react-router-dom":1009,"react-table":1034,"semantic-ui-react":1279}],1396:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -115187,15 +115259,12 @@ var BPG = function (_Component) {
 						);
 					},
 					accessor: 'skip',
-					maxWidth: 100
-				}, {
-					id: 'last_run_date',
-					Header: 'Last Run',
-					minWidth: 150,
-					accessor: function accessor(r) {
-						return (0, _moment2.default)(r.last_run_date).format('MMM Do, YYYY HH:mm:ss');
-					}
-				}]
+					maxWidth: 100 /*, {
+                   id: 'last_run_date',
+                   Header: 'Last Run',
+                   minWidth: 150,
+                   accessor: r => Moment(r.last_run_date).format('MMM Do, YYYY HH:mm:ss'),
+                   } */ }]
 			}];
 
 			return _react2.default.createElement(
@@ -115348,7 +115417,7 @@ var BPGList = function (_Component) {
 				columns: [{
 					Header: 'Business Process Group Name',
 					accessor: 'name',
-					minWidth: 200,
+					minWidth: 300,
 					Cell: function Cell(row) {
 						return _react2.default.createElement(
 							_reactRouterDom.Link,
@@ -115401,13 +115470,6 @@ var BPGList = function (_Component) {
 					},
 					accessor: 'skip',
 					maxWidth: 100
-				}, {
-					id: 'last_run_date',
-					Header: 'Last Run',
-					minWidth: 150,
-					accessor: function accessor(r) {
-						return (0, _moment2.default)(r.last_run_date).format('MMM Do, YYYY HH:mm:ss');
-					}
 				}]
 			}];
 
@@ -115465,6 +115527,54 @@ exports.default = BPGList;
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _semanticUiReact = require('semantic-ui-react');
+
+var _bugId = require('./bugId');
+
+var _bugId2 = _interopRequireDefault(_bugId);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// this class displays a comment modal (used for both automation and user comments)
+var bugIdModal = function bugIdModal(_ref) {
+    var id = _ref.id,
+        heading = _ref.heading,
+        routeEndPoint = _ref.routeEndPoint,
+        visible = _ref.visible,
+        onClose = _ref.onClose;
+    return _react2.default.createElement(
+        _semanticUiReact.Modal,
+        { closeIcon: true, onClose: onClose, open: visible },
+        _react2.default.createElement(
+            _semanticUiReact.Modal.Header,
+            null,
+            heading
+        ),
+        _react2.default.createElement(
+            _semanticUiReact.Modal.Content,
+            { scrolling: true },
+            _react2.default.createElement(
+                _semanticUiReact.Modal.Description,
+                null,
+                _react2.default.createElement('bugId', { id: id, route: routeEndPoint })
+            )
+        )
+    );
+};
+
+exports.default = bugIdModal;
+
+},{"./bugId":1404,"react":1070,"semantic-ui-react":1279}],1399:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
@@ -115480,7 +115590,7 @@ var _UserComments2 = _interopRequireDefault(_UserComments);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// this class displays a comment modal (used for both automatio and user comments)
+// this class displays a comment modal (used for both automation and user comments)
 var CommentModal = function CommentModal(_ref) {
 	var id = _ref.id,
 	    heading = _ref.heading,
@@ -115509,7 +115619,7 @@ var CommentModal = function CommentModal(_ref) {
 
 exports.default = CommentModal;
 
-},{"./UserComments":1401,"react":1070,"semantic-ui-react":1279}],1399:[function(require,module,exports){
+},{"./UserComments":1402,"react":1070,"semantic-ui-react":1279}],1400:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -115551,7 +115661,7 @@ var ErrorModal = function ErrorModal(_ref) {
 
 exports.default = ErrorModal;
 
-},{"react":1070,"semantic-ui-react":1279}],1400:[function(require,module,exports){
+},{"react":1070,"semantic-ui-react":1279}],1401:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -115859,7 +115969,7 @@ var TC = function (_Component) {
 
 exports.default = TC;
 
-},{"./CommentModal":1398,"./ErrorModal":1399,"jquery":492,"moment":856,"react":1070,"react-table":1034,"recharts":1111,"semantic-ui-react":1279}],1401:[function(require,module,exports){
+},{"./CommentModal":1399,"./ErrorModal":1400,"jquery":492,"moment":856,"react":1070,"react-table":1034,"recharts":1111,"semantic-ui-react":1279}],1402:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -116074,7 +116184,7 @@ var UserComments = function (_Component) {
 
 exports.default = UserComments;
 
-},{"jquery":492,"moment":856,"react":1070,"semantic-ui-react":1279}],1402:[function(require,module,exports){
+},{"jquery":492,"moment":856,"react":1070,"semantic-ui-react":1279}],1403:[function(require,module,exports){
 'use strict';
 
 require('babel-polyfill');
@@ -116163,4 +116273,209 @@ var App = function App() {
 // ReactDOM is only called once to mount our entire application on a <div> with id 'root'
 _reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById('root'));
 
-},{"./BP":1395,"./BPG":1396,"./BPGList":1397,"./TC":1400,"babel-polyfill":1,"react":1070,"react-dom":868,"react-router-dom":1009}]},{},[1402]);
+},{"./BP":1395,"./BPG":1396,"./BPGList":1397,"./TC":1401,"babel-polyfill":1,"react":1070,"react-dom":868,"react-router-dom":1009}],1404:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _semanticUiReact = require('semantic-ui-react');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _moment = require('moment');
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+// this class implments the list of comments shown in the modal
+var bugId = function (_Component) {
+    _inherits(bugId, _Component);
+
+    function bugId(props) {
+        _classCallCheck(this, bugId);
+
+        // before we get any data, the modal's initial state is empty
+        var _this = _possibleConstructorReturn(this, (bugId.__proto__ || Object.getPrototypeOf(bugId)).call(this, props));
+
+        _this.state = {
+            bugIds: [],
+            id: _this.props.id,
+            route: _this.props.route,
+            bugIdButtonLoading: false,
+            errorHidden: true,
+            formAuthor: '',
+            formText: ''
+
+            // bind event listeners
+        };_this.formSubmitHandler = _this.formSubmitHandler.bind(_this);
+        _this.fetchData = _this.fetchData.bind(_this);
+        return _this;
+    }
+
+    // fetches list of comments from server endpoint
+
+
+    _createClass(bugId, [{
+        key: 'fetchData',
+        value: function fetchData() {
+            var _this2 = this;
+
+            _jquery2.default.get('/db/' + this.state.route + '/' + this.state.id).done(function (bugIds) {
+                _this2.setState({ bugIds: bugIds });
+            }).fail(function (err) {
+                console.log(err);
+            });
+        }
+
+        // submits new comment
+
+    }, {
+        key: 'formSubmitHandler',
+        value: function formSubmitHandler(e) {
+            var _this3 = this;
+
+            e.preventDefault();
+            this.setState({ bugIdButtonLoading: true }); // set ui loading
+
+            // perform ajax request to add comment
+            _jquery2.default.ajax({
+                url: '/db/' + this.state.route + '/' + this.state.id,
+                method: 'PUT',
+                data: {
+                    author: this.state.formAuthor,
+                    text: this.state.formText
+                }
+            }).then(function () {
+                _this3.fetchData();
+                _this3.setState({
+                    formAuthor: '',
+                    formText: '',
+                    errorHidden: true,
+                    bugIdButtonLoading: false
+                });
+            }).fail(function () {
+                _this3.fetchData();
+                _this3.setState({
+                    errorHidden: false,
+                    bugIdButtonLoading: false
+                });
+            });
+        }
+
+        // fires before class is constructed, get initial data
+
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.fetchData();
+        }
+
+        // renders view
+
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var bugList;
+            if (this.state.bugIds.length === 0) // if there are no bugs, render a msg
+                bugList = 'No bug Id posted yet';else // perform some formating on our list of comments
+                bugList = this.state.bugIds.map(function (bugId, index) {
+                    return _react2.default.createElement(
+                        _semanticUiReact.Comment,
+                        { key: index },
+                        _react2.default.createElement(
+                            _semanticUiReact.Comment.Content,
+                            null,
+                            _react2.default.createElement(
+                                _semanticUiReact.Comment.Author,
+                                null,
+                                bugId.author
+                            ),
+                            _react2.default.createElement(
+                                _semanticUiReact.Comment.Metadata,
+                                null,
+                                _react2.default.createElement(
+                                    'div',
+                                    null,
+                                    (0, _moment2.default)(bugId.time).format('MM/DD/YYYY HH:mm')
+                                )
+                            ),
+                            _react2.default.createElement(
+                                _semanticUiReact.Comment.Text,
+                                null,
+                                _react2.default.createElement(
+                                    'p',
+                                    null,
+                                    bugId.text
+                                )
+                            )
+                        ),
+                        _react2.default.createElement(_semanticUiReact.Divider, null)
+                    );
+                });
+
+            // finally, render our list of comments
+            return _react2.default.createElement(
+                _semanticUiReact.Comment.Group,
+                null,
+                _react2.default.createElement(
+                    _semanticUiReact.Comment,
+                    null,
+                    _react2.default.createElement(
+                        _semanticUiReact.Comment.Content,
+                        null,
+                        bugList
+                    )
+                ),
+                _react2.default.createElement(_semanticUiReact.Message, {
+                    hidden: this.state.errorHidden,
+                    error: true,
+                    content: 'Missing bug id content'
+                }),
+                _react2.default.createElement(
+                    _semanticUiReact.Form,
+                    { reply: true, onSubmit: this.formSubmitHandler },
+                    _react2.default.createElement(
+                        _semanticUiReact.Form.Field,
+                        null,
+                        _react2.default.createElement(
+                            'label',
+                            null,
+                            'Bug ID'
+                        ),
+                        _react2.default.createElement(_semanticUiReact.Form.TextArea, { name: 'text', value: this.state.formText, onChange: function onChange(e) {
+                                _this4.setState({ formText: e.target.value });
+                            } })
+                    ),
+                    _react2.default.createElement(_semanticUiReact.Button, { content: 'Post Bug', labelPosition: 'left', icon: 'edit', type: 'submit', loading: this.state.bugIdButtonLoading, primary: true })
+                )
+            );
+        }
+    }]);
+
+    return bugId;
+}(_react.Component);
+
+exports.default = bugId;
+
+},{"jquery":492,"moment":856,"react":1070,"semantic-ui-react":1279}]},{},[1403]);
+
+//# sourceMappingURL=sourcemaps/app.js.map

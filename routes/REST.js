@@ -25,7 +25,7 @@ router.route('/BPG')
 					fail: { $sum: { $cond: [ { $eq: [ '$status', 'fail' ] }, 1, 0 ] } },
 					skip: { $sum: { $cond: [ { $eq: [ '$status', 'skip' ] }, 1, 0 ] } },
 				},
-			}, { $sort: { last_run_date: -1 } },
+			}, { $sort: { _id: 1 } },
 		])
 			.then(BPG => {
 				res.status(200).send(BPG)
@@ -159,6 +159,37 @@ router.route('/TCByName/:name')
 			})
 	})
 
+
+// endpoint for fetching/adding new user comments
+router.route('/Comment/:id')
+    .get((req, res, next) => { // fetch
+        TC.findById(req.params.id, 'Comment')
+            .then(testCase => {
+                if (!testCase) return res.status(404).send()
+                testCase.Comments.sort((a, b) => {
+                    var keyA = new Date(a.time),
+                        keyB = new Date(b.time)
+                    if (keyA < keyB) return -1
+                    if (keyA > keyB) return 1
+                    return 0
+                })
+                res.status(200).send(testCase.Comments)
+            })
+            .catch(err => {
+                next(err)
+            })
+    })
+    .put((req, res, next) => { // add
+        if (!req.body.author || !req.body.text) return res.status(400).end()
+        TC.findByIdAndUpdate(req.params.id, { $push: { Comments: req.body } })
+            .then(testCase => {
+                if (!testCase) res.status(404).send('test case not found')
+                res.status(200).send()
+            })
+            .catch(err => {
+                next(err)
+            })
+    })
 // endpoint for fetching/adding new user comments
 router.route('/userComment/:id')
 	.get((req, res, next) => { // fetch

@@ -4,12 +4,21 @@ import { Button } from 'semantic-ui-react'
 import { Link } from 'react-router-dom'
 import Moment from 'moment'
 import ReactTable from 'react-table'
+import CommentModal from './CommentModal'
+import BugIdModal from './BugIdModal'
+
 
 // this class renders the BP details page, details see BPG.js and TC.js
 class BP extends Component {
 	constructor (props) {
 		super(props)
-		this.state = { loading: true }
+		this.state = {  loading: true,
+						commentOpen: false,
+						bugIdOpen: false
+		}
+
+        this.closeComments = this.closeComments.bind(this)
+        this.closeBugId = this.closeBugId.bind(this)
 	}
 
 	fetchData () {
@@ -23,11 +32,35 @@ class BP extends Component {
 			})
 	}
 
+	closeComments () {
+        this.setState({ commentOpen :false })
+    }
+
+    closeBugId () {
+        this.setState({ bugIdOpen :false })
+    }
+
 	componentDidMount () {
 		this.fetchData()
 	}
 	render () {
-		return <ReactTable
+		return<div>
+
+		<CommentModal
+				id={this.state.modalTcId} // id is used for getting comments from server endpoint
+				heading='Comments'
+				routeEndPoint='Comment' // this is also used for getting comments from server endpoint
+				visible={this.state.commentOpen} // controls whether modal is hidden or shown
+				onClose={this.closeComments} // closes modal on click
+			/>
+			<BugIdModal
+				id={this.state.modalTcId} // id is used for getting comments from server endpoint
+				heading='Bug Id'
+				routeEndPoint='bug id' // this is also used for getting comments from server endpoint
+				visible={this.state.bugIdOpen} // controls whether modal is hidden or shown
+				onClose={this.closeBugId} // closes modal on click
+			/>
+		<ReactTable
 			loading={ this.state.loading }
 			data={ this.state.data }
 			resizable={ this.props.tableStyle.resizable }
@@ -68,11 +101,29 @@ class BP extends Component {
 							</div>
 						},
 					}, {
-						id: 'last_run_date',
-						Header: 'Last Run',
-						minWidth: 150,
-						accessor: r => Moment(r.last_run_date).format('MMM Do, YYYY HH:mm:ss'),
+						Header: 'Comments',
+						maxWidth: 250,
+                        Cell: row => <a href='javascript:void(0)' onClick={ () => {
+                            this.setState({
+                                commentOpen: true,
+                                modalTcId: row.original._id,
+                            })
+                        }}>View</a>
 					}, {
+						Header: 'Bug ID',
+						maxWidth: 250,
+                        Cell: row => <a href='javascript:void(0)' onClick={ () => {
+                            this.setState({
+                                bugIdOpen: true,
+                                modalTcId: row.original._id,
+                            })
+                        }}>View</a>
+					},{
+                            id: 'last_run_date',
+                            Header: 'Last Run',
+                            minWidth: 150,
+                            accessor: r => Moment(r.last_run_date).format('MMM Do, YYYY HH:mm:ss'),
+                }, {
 						Header: 'Jenkins Job',
 						accessor: 'job',
 						maxWidth: 100,
@@ -81,6 +132,8 @@ class BP extends Component {
 				} ]
 			}
 		/>
+		</div>
+
 	}
 }
 
