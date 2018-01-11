@@ -317,7 +317,7 @@ router.route('/autoComment/:id')
 			TC.findOne({name: req.params.name}, 'bugId')
 				.then(testCase => {
 					if (!testCase) return res.status(404).send()
-					res.status(200).send(testCase)
+					res.status(200).send(testCase.bugId)
 				})
 				.catch(err => {
 					next(err)

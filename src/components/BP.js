@@ -68,7 +68,7 @@ class BP extends Component {
 
 		<BugIdModal
 			id={this.state.modalTcId} // id is used for getting comments from server endpoint
-			heading='Bug Id'
+			heading='Bug ID'
 			routeEndPoint='bugId' // this is also used for getting comments from server endpoint
 			visible={this.state.bugIdOpen} // controls whether modal is hidden or shown
 			onClose={this.closeBugId} // closes modal on click

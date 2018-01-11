@@ -4,18 +4,17 @@ import $ from 'jquery'
 import Moment from 'moment'
 
 // this class implments the list of comments shown in the modal
-class bugId extends Component {
+class BugId extends Component {
     constructor (props) {
         super(props)
 
         // before we get any data, the modal's initial state is empty
         this.state = {
-            bugIds: [],
+            bugId: '',
             id: this.props.id,
             route: this.props.route,
             bugIdButtonLoading: false,
             errorHidden: true,
-            formAuthor: '',
             formText: '',
         }
 
@@ -27,8 +26,8 @@ class bugId extends Component {
     // fetches list of comments from server endpoint
     fetchData () {
         $.get('/db/' + this.state.route + '/' + this.state.id)
-            .done(bugIds => {
-                this.setState({ bugIds })
+            .done(bugId => {
+                this.setState({ bugId })
             })
             .fail(err => {
                 console.log(err)
@@ -45,14 +44,12 @@ class bugId extends Component {
             url: '/db/' + this.state.route + '/' + this.state.id,
             method: 'PUT',
             data: {
-                author: this.state.formAuthor,
-                text: this.state.formText,
+                bugId: this.state.formText,
             },
         })
             .then(() => {
                 this.fetchData()
                 this.setState({
-                    formAuthor: '',
                     formText: '',
                     errorHidden: true,
                     bugIdButtonLoading: false,
@@ -74,30 +71,24 @@ class bugId extends Component {
 
     // renders view
     render () {
-        var bugList
-        if (this.state.bugIds.length === 0) // if there are no bugs, render a msg
-            bugList = 'No bug Id posted yet'
+        var bug
+        if (this.state.bugId === '') // if there are no bugs, render a msg
+            bug = 'No bug Id posted yet'
         else // perform some formating on our list of comments
-            bugList = this.state.bugIds.map((bugId, index) =>
-                <Comment key={index}>
-                    <Comment.Content>
-                        <Comment.Author>{bugId.author}</Comment.Author>
-                        <Comment.Metadata>
-                            <div>{Moment(bugId.time).format('MM/DD/YYYY HH:mm')}</div>
-                        </Comment.Metadata>
+            bug = (
+              <div>
                         <Comment.Text>
-                            <p>{bugId.text}</p>
+                            <p><strong>Bug ID: </strong>{this.state.bugId}</p><br />
                         </Comment.Text>
-                    </Comment.Content>
-                    <Divider />
-                </Comment>)
+                      </div>
+            )
 
         // finally, render our list of comments
         return (
             <Comment.Group>
                 <Comment>
                     <Comment.Content>
-                        {bugList}
+                        {bug}
                     </Comment.Content>
                 </Comment>
 
@@ -105,23 +96,23 @@ class bugId extends Component {
                 <Message
                     hidden = {this.state.errorHidden}
                     error
-                    content='Missing bug id content'
+                    content='Missing bug ID'
                 />
 
                 { /* form for submitted a new comment */ }
                 <Form reply onSubmit= { this.formSubmitHandler } >
                     <Form.Field>
-                        <label>Bug ID</label>
+                        <label>Update Bug ID</label>
                         <Form.TextArea name='text'value={this.state.formText} onChange={e => {
                             this.setState({ formText: e.target.value })
                         }}/>
                     </Form.Field>
 
-                    <Button content='Post Bug' labelPosition='left' icon='edit' type='submit' loading={this.state.bugIdButtonLoading} primary/>
+                    <Button content='Update Bug ID' labelPosition='left' icon='edit' type='submit' loading={this.state.bugIdButtonLoading} primary/>
                 </Form>
             </Comment.Group>
         )
     }
 }
 
-export default bugId
+export default BugId

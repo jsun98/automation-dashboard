@@ -114998,7 +114998,7 @@ var BP = function (_Component) {
 				}),
 				_react2.default.createElement(_BugIdModal2.default, {
 					id: this.state.modalTcId // id is used for getting comments from server endpoint
-					, heading: 'Bug Id',
+					, heading: 'Bug ID',
 					routeEndPoint: 'bugId' // this is also used for getting comments from server endpoint
 					, visible: this.state.bugIdOpen // controls whether modal is hidden or shown
 					, onClose: this.closeBugId // closes modal on click
@@ -115129,7 +115129,7 @@ var BP = function (_Component) {
 
 exports.default = BP;
 
-},{"./BugIdModal":1398,"./CommentModal":1399,"jquery":492,"moment":856,"react":1070,"react-router-dom":1009,"react-table":1034,"semantic-ui-react":1279}],1396:[function(require,module,exports){
+},{"./BugIdModal":1399,"./CommentModal":1400,"jquery":492,"moment":856,"react":1070,"react-router-dom":1009,"react-table":1034,"semantic-ui-react":1279}],1396:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -115559,20 +115559,205 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _semanticUiReact = require('semantic-ui-react');
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _moment = require('moment');
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+// this class implments the list of comments shown in the modal
+var BugId = function (_Component) {
+    _inherits(BugId, _Component);
+
+    function BugId(props) {
+        _classCallCheck(this, BugId);
+
+        // before we get any data, the modal's initial state is empty
+        var _this = _possibleConstructorReturn(this, (BugId.__proto__ || Object.getPrototypeOf(BugId)).call(this, props));
+
+        _this.state = {
+            bugId: '',
+            id: _this.props.id,
+            route: _this.props.route,
+            bugIdButtonLoading: false,
+            errorHidden: true,
+            formText: ''
+
+            // bind event listeners
+        };_this.formSubmitHandler = _this.formSubmitHandler.bind(_this);
+        _this.fetchData = _this.fetchData.bind(_this);
+        return _this;
+    }
+
+    // fetches list of comments from server endpoint
+
+
+    _createClass(BugId, [{
+        key: 'fetchData',
+        value: function fetchData() {
+            var _this2 = this;
+
+            _jquery2.default.get('/db/' + this.state.route + '/' + this.state.id).done(function (bugId) {
+                _this2.setState({ bugId: bugId });
+            }).fail(function (err) {
+                console.log(err);
+            });
+        }
+
+        // submits new comment
+
+    }, {
+        key: 'formSubmitHandler',
+        value: function formSubmitHandler(e) {
+            var _this3 = this;
+
+            e.preventDefault();
+            this.setState({ bugIdButtonLoading: true }); // set ui loading
+
+            // perform ajax request to add comment
+            _jquery2.default.ajax({
+                url: '/db/' + this.state.route + '/' + this.state.id,
+                method: 'PUT',
+                data: {
+                    bugId: this.state.formText
+                }
+            }).then(function () {
+                _this3.fetchData();
+                _this3.setState({
+                    formText: '',
+                    errorHidden: true,
+                    bugIdButtonLoading: false
+                });
+            }).fail(function () {
+                _this3.fetchData();
+                _this3.setState({
+                    errorHidden: false,
+                    bugIdButtonLoading: false
+                });
+            });
+        }
+
+        // fires before class is constructed, get initial data
+
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.fetchData();
+        }
+
+        // renders view
+
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var bug;
+            if (this.state.bugId === '') // if there are no bugs, render a msg
+                bug = 'No bug Id posted yet';else // perform some formating on our list of comments
+                bug = _react2.default.createElement(
+                    'div',
+                    null,
+                    _react2.default.createElement(
+                        _semanticUiReact.Comment.Text,
+                        null,
+                        _react2.default.createElement(
+                            'p',
+                            null,
+                            _react2.default.createElement(
+                                'strong',
+                                null,
+                                'Bug ID: '
+                            ),
+                            this.state.bugId
+                        ),
+                        _react2.default.createElement('br', null)
+                    )
+                );
+
+            // finally, render our list of comments
+            return _react2.default.createElement(
+                _semanticUiReact.Comment.Group,
+                null,
+                _react2.default.createElement(
+                    _semanticUiReact.Comment,
+                    null,
+                    _react2.default.createElement(
+                        _semanticUiReact.Comment.Content,
+                        null,
+                        bug
+                    )
+                ),
+                _react2.default.createElement(_semanticUiReact.Message, {
+                    hidden: this.state.errorHidden,
+                    error: true,
+                    content: 'Missing bug ID'
+                }),
+                _react2.default.createElement(
+                    _semanticUiReact.Form,
+                    { reply: true, onSubmit: this.formSubmitHandler },
+                    _react2.default.createElement(
+                        _semanticUiReact.Form.Field,
+                        null,
+                        _react2.default.createElement(
+                            'label',
+                            null,
+                            'Update Bug ID'
+                        ),
+                        _react2.default.createElement(_semanticUiReact.Form.TextArea, { name: 'text', value: this.state.formText, onChange: function onChange(e) {
+                                _this4.setState({ formText: e.target.value });
+                            } })
+                    ),
+                    _react2.default.createElement(_semanticUiReact.Button, { content: 'Update Bug ID', labelPosition: 'left', icon: 'edit', type: 'submit', loading: this.state.bugIdButtonLoading, primary: true })
+                )
+            );
+        }
+    }]);
+
+    return BugId;
+}(_react.Component);
+
+exports.default = BugId;
+
+},{"jquery":492,"moment":856,"react":1070,"semantic-ui-react":1279}],1399:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
 var _semanticUiReact = require('semantic-ui-react');
 
-var _bugId = require('./bugId');
+var _BugId = require('./BugId');
 
-var _bugId2 = _interopRequireDefault(_bugId);
+var _BugId2 = _interopRequireDefault(_BugId);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // this class displays a comment modal (used for both automation and user comments)
-var bugIdModal = function bugIdModal(_ref) {
+var BugIdModal = function BugIdModal(_ref) {
     var id = _ref.id,
         heading = _ref.heading,
         routeEndPoint = _ref.routeEndPoint,
@@ -115592,15 +115777,15 @@ var bugIdModal = function bugIdModal(_ref) {
             _react2.default.createElement(
                 _semanticUiReact.Modal.Description,
                 null,
-                _react2.default.createElement('bugId', { id: id, route: routeEndPoint })
+                _react2.default.createElement(_BugId2.default, { id: id, route: routeEndPoint })
             )
         )
     );
 };
 
-exports.default = bugIdModal;
+exports.default = BugIdModal;
 
-},{"./bugId":1404,"react":1070,"semantic-ui-react":1279}],1399:[function(require,module,exports){
+},{"./BugId":1398,"react":1070,"semantic-ui-react":1279}],1400:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -115648,7 +115833,7 @@ var CommentModal = function CommentModal(_ref) {
 
 exports.default = CommentModal;
 
-},{"./UserComments":1402,"react":1070,"semantic-ui-react":1279}],1400:[function(require,module,exports){
+},{"./UserComments":1403,"react":1070,"semantic-ui-react":1279}],1401:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -115690,7 +115875,7 @@ var ErrorModal = function ErrorModal(_ref) {
 
 exports.default = ErrorModal;
 
-},{"react":1070,"semantic-ui-react":1279}],1401:[function(require,module,exports){
+},{"react":1070,"semantic-ui-react":1279}],1402:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -115998,7 +116183,7 @@ var TC = function (_Component) {
 
 exports.default = TC;
 
-},{"./CommentModal":1399,"./ErrorModal":1400,"jquery":492,"moment":856,"react":1070,"react-table":1034,"recharts":1111,"semantic-ui-react":1279}],1402:[function(require,module,exports){
+},{"./CommentModal":1400,"./ErrorModal":1401,"jquery":492,"moment":856,"react":1070,"react-table":1034,"recharts":1111,"semantic-ui-react":1279}],1403:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -116213,7 +116398,7 @@ var UserComments = function (_Component) {
 
 exports.default = UserComments;
 
-},{"jquery":492,"moment":856,"react":1070,"semantic-ui-react":1279}],1403:[function(require,module,exports){
+},{"jquery":492,"moment":856,"react":1070,"semantic-ui-react":1279}],1404:[function(require,module,exports){
 'use strict';
 
 require('babel-polyfill');
@@ -116302,209 +116487,6 @@ var App = function App() {
 // ReactDOM is only called once to mount our entire application on a <div> with id 'root'
 _reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById('root'));
 
-},{"./BP":1395,"./BPG":1396,"./BPGList":1397,"./TC":1401,"babel-polyfill":1,"react":1070,"react-dom":868,"react-router-dom":1009}],1404:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _semanticUiReact = require('semantic-ui-react');
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _jquery = require('jquery');
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-var _moment = require('moment');
-
-var _moment2 = _interopRequireDefault(_moment);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-// this class implments the list of comments shown in the modal
-var bugId = function (_Component) {
-    _inherits(bugId, _Component);
-
-    function bugId(props) {
-        _classCallCheck(this, bugId);
-
-        // before we get any data, the modal's initial state is empty
-        var _this = _possibleConstructorReturn(this, (bugId.__proto__ || Object.getPrototypeOf(bugId)).call(this, props));
-
-        _this.state = {
-            bugIds: [],
-            id: _this.props.id,
-            route: _this.props.route,
-            bugIdButtonLoading: false,
-            errorHidden: true,
-            formAuthor: '',
-            formText: ''
-
-            // bind event listeners
-        };_this.formSubmitHandler = _this.formSubmitHandler.bind(_this);
-        _this.fetchData = _this.fetchData.bind(_this);
-        return _this;
-    }
-
-    // fetches list of comments from server endpoint
-
-
-    _createClass(bugId, [{
-        key: 'fetchData',
-        value: function fetchData() {
-            var _this2 = this;
-
-            _jquery2.default.get('/db/' + this.state.route + '/' + this.state.id).done(function (bugIds) {
-                _this2.setState({ bugIds: bugIds });
-            }).fail(function (err) {
-                console.log(err);
-            });
-        }
-
-        // submits new comment
-
-    }, {
-        key: 'formSubmitHandler',
-        value: function formSubmitHandler(e) {
-            var _this3 = this;
-
-            e.preventDefault();
-            this.setState({ bugIdButtonLoading: true }); // set ui loading
-
-            // perform ajax request to add comment
-            _jquery2.default.ajax({
-                url: '/db/' + this.state.route + '/' + this.state.id,
-                method: 'PUT',
-                data: {
-                    author: this.state.formAuthor,
-                    text: this.state.formText
-                }
-            }).then(function () {
-                _this3.fetchData();
-                _this3.setState({
-                    formAuthor: '',
-                    formText: '',
-                    errorHidden: true,
-                    bugIdButtonLoading: false
-                });
-            }).fail(function () {
-                _this3.fetchData();
-                _this3.setState({
-                    errorHidden: false,
-                    bugIdButtonLoading: false
-                });
-            });
-        }
-
-        // fires before class is constructed, get initial data
-
-    }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.fetchData();
-        }
-
-        // renders view
-
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this4 = this;
-
-            var bugList;
-            if (this.state.bugIds.length === 0) // if there are no bugs, render a msg
-                bugList = 'No bug Id posted yet';else // perform some formating on our list of comments
-                bugList = this.state.bugIds.map(function (bugId, index) {
-                    return _react2.default.createElement(
-                        _semanticUiReact.Comment,
-                        { key: index },
-                        _react2.default.createElement(
-                            _semanticUiReact.Comment.Content,
-                            null,
-                            _react2.default.createElement(
-                                _semanticUiReact.Comment.Author,
-                                null,
-                                bugId.author
-                            ),
-                            _react2.default.createElement(
-                                _semanticUiReact.Comment.Metadata,
-                                null,
-                                _react2.default.createElement(
-                                    'div',
-                                    null,
-                                    (0, _moment2.default)(bugId.time).format('MM/DD/YYYY HH:mm')
-                                )
-                            ),
-                            _react2.default.createElement(
-                                _semanticUiReact.Comment.Text,
-                                null,
-                                _react2.default.createElement(
-                                    'p',
-                                    null,
-                                    bugId.text
-                                )
-                            )
-                        ),
-                        _react2.default.createElement(_semanticUiReact.Divider, null)
-                    );
-                });
-
-            // finally, render our list of comments
-            return _react2.default.createElement(
-                _semanticUiReact.Comment.Group,
-                null,
-                _react2.default.createElement(
-                    _semanticUiReact.Comment,
-                    null,
-                    _react2.default.createElement(
-                        _semanticUiReact.Comment.Content,
-                        null,
-                        bugList
-                    )
-                ),
-                _react2.default.createElement(_semanticUiReact.Message, {
-                    hidden: this.state.errorHidden,
-                    error: true,
-                    content: 'Missing bug id content'
-                }),
-                _react2.default.createElement(
-                    _semanticUiReact.Form,
-                    { reply: true, onSubmit: this.formSubmitHandler },
-                    _react2.default.createElement(
-                        _semanticUiReact.Form.Field,
-                        null,
-                        _react2.default.createElement(
-                            'label',
-                            null,
-                            'Bug ID'
-                        ),
-                        _react2.default.createElement(_semanticUiReact.Form.TextArea, { name: 'text', value: this.state.formText, onChange: function onChange(e) {
-                                _this4.setState({ formText: e.target.value });
-                            } })
-                    ),
-                    _react2.default.createElement(_semanticUiReact.Button, { content: 'Post Bug', labelPosition: 'left', icon: 'edit', type: 'submit', loading: this.state.bugIdButtonLoading, primary: true })
-                )
-            );
-        }
-    }]);
-
-    return bugId;
-}(_react.Component);
-
-exports.default = bugId;
-
-},{"jquery":492,"moment":856,"react":1070,"semantic-ui-react":1279}]},{},[1403]);
+},{"./BP":1395,"./BPG":1396,"./BPGList":1397,"./TC":1402,"babel-polyfill":1,"react":1070,"react-dom":868,"react-router-dom":1009}]},{},[1404]);
 
 //# sourceMappingURL=sourcemaps/app.js.map
