@@ -115060,6 +115060,7 @@ var BP = function (_Component) {
 								return _react2.default.createElement(
 									'a',
 									{ href: 'javascript:void(0)', onClick: function onClick() {
+											console.log(row);
 											_this3.setState({
 												userCommentOpen: true,
 												modalTcId: row.original._id

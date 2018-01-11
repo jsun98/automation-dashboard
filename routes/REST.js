@@ -252,6 +252,36 @@ router.route('/autoComment/:id')
 			})
 	})
 
+
+	router.route('/combinedUserComment/:name')
+		.get((req, res, next) => { // fetch
+			TC.find({name: req.params.name}, 'userComment')
+				.then(testCases => {
+					if (testCases.length == 0) return res.status(404).send()
+
+					var comment = testCases.reduce((a, i) => a.concat(i.userComment), [])
+
+					comment.sort((a, b) => {
+						var keyA = new Date(a.time),
+							keyB = new Date(b.time)
+						if (keyA < keyB) return -1
+						if (keyA > keyB) return 1
+						return 0
+					})
+					res.status(200).send(comment)
+				})
+				.catch(err => {
+					next(err)
+				})
+		})
+		.put((req, res, next) => { // add
+			if (!req.body.author || !req.body.text) return res.status(400).end()
+			TC.findOneAndUpdate({name: req.params.name}, { $push: { userComment: req.body } }, {sort: { last_run_date: -1 }}, (err, testCase) => {
+				if (err) return next(err)
+				res.status(200).send()
+			})
+		})
+
 // CRUD operation on database entries by id
 router.route('/TC/:id')
 	.get((req, res, next) => { // fetch a testcase by id

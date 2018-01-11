@@ -117,6 +117,7 @@ class BP extends Component {
 						Header: 'Testing Team Comments',
 						maxWidth: 250,
 						Cell: row => <a href='javascript:void(0)' onClick={ () => {
+							console.log(row)
 							this.setState({
 								userCommentOpen: true,
 								modalTcId: row.original._id,
