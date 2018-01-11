@@ -79,14 +79,14 @@ const
                 default: Date(),
             },
         } ],
-        Comments: [ {
-            author: String,
-            text: String,
-            time: {
-                type: Date,
-                default: Date(),
-            },
-        } ],
+    Comments: [ {
+        author: String,
+        text: String,
+        time: {
+            type: Date,
+            default: Date(),
+        },
+    } ],
 		bugId: String,
 		job: String,
 		error: String,

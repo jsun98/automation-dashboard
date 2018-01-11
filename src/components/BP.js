@@ -17,8 +17,9 @@ class BP extends Component {
 						bugIdOpen: false
 		}
 
-        this.closeComments = this.closeComments.bind(this)
-        this.closeBugId = this.closeBugId.bind(this)
+			this.closeUserModal = this.closeUserModal.bind(this)
+			this.closeAutoModal = this.closeAutoModal.bind(this)
+      this.closeBugId = this.closeBugId.bind(this)
 	}
 
 	fetchData () {
@@ -32,9 +33,13 @@ class BP extends Component {
 			})
 	}
 
-	closeComments () {
-        this.setState({ commentOpen :false })
-    }
+	closeUserModal () {
+		this.setState({ userCommentOpen: false })
+	}
+
+	closeAutoModal () {
+		this.setState({ autoCommentOpen: false })
+	}
 
     closeBugId () {
         this.setState({ bugIdOpen :false })
@@ -47,12 +52,20 @@ class BP extends Component {
 		return<div>
 
 		<CommentModal
-				id={this.state.modalTcId} // id is used for getting comments from server endpoint
-				heading='Comments'
-				routeEndPoint='Comment' // this is also used for getting comments from server endpoint
-				visible={this.state.commentOpen} // controls whether modal is hidden or shown
-				onClose={this.closeComments} // closes modal on click
-			/>
+			id={this.state.modalTcId} // id is used for getting comments from server endpoint
+			heading='Testing Team Comments'
+			routeEndPoint='combinedUserComment' // this is also used for getting comments from server endpoint
+			visible={this.state.userCommentOpen} // controls whether modal is hidden or shown
+			onClose={this.closeUserModal} // closes modal on click
+		/>
+		<CommentModal
+			id={this.state.modalTcId}
+			heading='Automation Team Comments'
+			routeEndPoint='combinedAutoComment'
+			visible={this.state.autoCommentOpen}
+			onClose={this.closeAutoModal}
+		/>
+
 			<BugIdModal
 				id={this.state.modalTcId} // id is used for getting comments from server endpoint
 				heading='Bug Id'
@@ -101,14 +114,23 @@ class BP extends Component {
 							</div>
 						},
 					}, {
-						Header: 'Comments',
+						Header: 'Testing Team Comments',
 						maxWidth: 250,
-                        Cell: row => <a href='javascript:void(0)' onClick={ () => {
-                            this.setState({
-                                commentOpen: true,
-                                modalTcId: row.original._id,
-                            })
-                        }}>View</a>
+						Cell: row => <a href='javascript:void(0)' onClick={ () => {
+							this.setState({
+								userCommentOpen: true,
+								modalTcId: row.original._id,
+							})
+						}}>View</a>,
+					}, {
+						Header: 'Automation Team Comments',
+						maxWidth: 250,
+						Cell: row => <a href='javascript:void(0)' onClick={ () => {
+							this.setState({
+								autoCommentOpen: true,
+								modalTcId: row.original._id,
+							})
+						}}>View</a>,
 					}, {
 						Header: 'Bug ID',
 						maxWidth: 250,

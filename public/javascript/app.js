@@ -114935,7 +114935,8 @@ var BP = function (_Component) {
 			bugIdOpen: false
 		};
 
-		_this.closeComments = _this.closeComments.bind(_this);
+		_this.closeUserModal = _this.closeUserModal.bind(_this);
+		_this.closeAutoModal = _this.closeAutoModal.bind(_this);
 		_this.closeBugId = _this.closeBugId.bind(_this);
 		return _this;
 	}
@@ -114954,9 +114955,14 @@ var BP = function (_Component) {
 			});
 		}
 	}, {
-		key: 'closeComments',
-		value: function closeComments() {
-			this.setState({ commentOpen: false });
+		key: 'closeUserModal',
+		value: function closeUserModal() {
+			this.setState({ userCommentOpen: false });
+		}
+	}, {
+		key: 'closeAutoModal',
+		value: function closeAutoModal() {
+			this.setState({ autoCommentOpen: false });
 		}
 	}, {
 		key: 'closeBugId',
@@ -114978,10 +114984,17 @@ var BP = function (_Component) {
 				null,
 				_react2.default.createElement(_CommentModal2.default, {
 					id: this.state.modalTcId // id is used for getting comments from server endpoint
-					, heading: 'Comments',
-					routeEndPoint: 'Comment' // this is also used for getting comments from server endpoint
-					, visible: this.state.commentOpen // controls whether modal is hidden or shown
-					, onClose: this.closeComments // closes modal on click
+					, heading: 'Testing Team Comments',
+					routeEndPoint: 'combinedUserComment' // this is also used for getting comments from server endpoint
+					, visible: this.state.userCommentOpen // controls whether modal is hidden or shown
+					, onClose: this.closeUserModal // closes modal on click
+				}),
+				_react2.default.createElement(_CommentModal2.default, {
+					id: this.state.modalTcId,
+					heading: 'Automation Team Comments',
+					routeEndPoint: 'combinedAutoComment',
+					visible: this.state.autoCommentOpen,
+					onClose: this.closeAutoModal
 				}),
 				_react2.default.createElement(_BugIdModal2.default, {
 					id: this.state.modalTcId // id is used for getting comments from server endpoint
@@ -115041,14 +115054,29 @@ var BP = function (_Component) {
 								);
 							}
 						}, {
-							Header: 'Comments',
+							Header: 'Testing Team Comments',
 							maxWidth: 250,
 							Cell: function Cell(row) {
 								return _react2.default.createElement(
 									'a',
 									{ href: 'javascript:void(0)', onClick: function onClick() {
 											_this3.setState({
-												commentOpen: true,
+												userCommentOpen: true,
+												modalTcId: row.original._id
+											});
+										} },
+									'View'
+								);
+							}
+						}, {
+							Header: 'Automation Team Comments',
+							maxWidth: 250,
+							Cell: function Cell(row) {
+								return _react2.default.createElement(
+									'a',
+									{ href: 'javascript:void(0)', onClick: function onClick() {
+											_this3.setState({
+												autoCommentOpen: true,
 												modalTcId: row.original._id
 											});
 										} },
