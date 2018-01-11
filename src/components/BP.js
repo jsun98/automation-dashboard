@@ -66,13 +66,14 @@ class BP extends Component {
 			onClose={this.closeAutoModal}
 		/>
 
-			<BugIdModal
-				id={this.state.modalTcId} // id is used for getting comments from server endpoint
-				heading='Bug Id'
-				routeEndPoint='bug id' // this is also used for getting comments from server endpoint
-				visible={this.state.bugIdOpen} // controls whether modal is hidden or shown
-				onClose={this.closeBugId} // closes modal on click
-			/>
+		<BugIdModal
+			id={this.state.modalTcId} // id is used for getting comments from server endpoint
+			heading='Bug Id'
+			routeEndPoint='bugId' // this is also used for getting comments from server endpoint
+			visible={this.state.bugIdOpen} // controls whether modal is hidden or shown
+			onClose={this.closeBugId} // closes modal on click
+		/>
+
 		<ReactTable
 			loading={ this.state.loading }
 			data={ this.state.data }

@@ -312,6 +312,25 @@ router.route('/autoComment/:id')
 			})
 		})
 
+	router.route('/bugId/:name')
+		.get((req, res, next) => { // fetch
+			TC.findOne({name: req.params.name}, 'bugId')
+				.then(testCase => {
+					if (!testCase) return res.status(404).send()
+					res.status(200).send(testCase)
+				})
+				.catch(err => {
+					next(err)
+				})
+		})
+		.put((req, res, next) => { // add
+			if (!req.body.bugId) return res.status(400).end()
+			TC.update({ name: req.params.name }, { $set: { bugId: req.body.bugId } }, { multi: true }, (err, testCases) => {
+				if (err) return next(err)
+				res.status(200).send(testCases)
+			})
+		})
+
 // CRUD operation on database entries by id
 router.route('/TC/:id')
 	.get((req, res, next) => { // fetch a testcase by id

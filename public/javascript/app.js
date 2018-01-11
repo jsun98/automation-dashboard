@@ -114999,7 +114999,7 @@ var BP = function (_Component) {
 				_react2.default.createElement(_BugIdModal2.default, {
 					id: this.state.modalTcId // id is used for getting comments from server endpoint
 					, heading: 'Bug Id',
-					routeEndPoint: 'bug id' // this is also used for getting comments from server endpoint
+					routeEndPoint: 'bugId' // this is also used for getting comments from server endpoint
 					, visible: this.state.bugIdOpen // controls whether modal is hidden or shown
 					, onClose: this.closeBugId // closes modal on click
 				}),
