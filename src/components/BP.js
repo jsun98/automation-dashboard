@@ -91,6 +91,12 @@ class BP extends Component {
 							}} onClick={() => {
 								this.props.prev()
 							}}/>
+							<Link to={'/BP/' + this.props.bpName + '/' + this.props.bpgName + '/latest'}>
+								<Button secondary content="Toggle Latest" icon='left arrow' labelPosition='left' style={{
+									position: 'absolute',
+									right: 0,
+								}}/>
+							</Link>
 							<h1 style={{ margin: 0 }}>Business Process Details: {this.state.name}</h1>
 						</div>,
 					columns: [ {

@@ -143,6 +143,50 @@ router.route('/BPByBPandBPG/:bpName/:bpgName')
 			})
 	})
 
+//This route should be used when user clicks on "Toggle Latest" button on the "Business Process Details" page
+//fetches details of a single BP but only for those testcases which were executed within the last 24hours
+router.route('/BPByBPandBPG/:bpName/:bpgName/latest')
+	.get((req, res, next) => {
+		const BPName = req.params.bpName
+		const BPGName = req.params.bpgName
+		var cDate = new Date(Date.now());
+		var	yDate = new Date('2018-01-01T18:00:00.000Z');
+		yDate.setDate(cDate.getDate() - 1);
+		yDate.setMonth(cDate.getMonth());
+
+		// we need to perform a aggregation (basically calculate the total number of pass, fail, skip, which is not directly stored in database)
+		TC.aggregate([
+			{
+				$match: {
+					env: req.session.env,
+					BP: BPName,
+					BPG: BPGName,
+					//checking for 'last_run_date' greater than yesterday's date and after 6PM
+					last_run_date: {
+						'$gte': yDate 
+					}
+				},
+			},
+			{ $sort: { last_run_date: -1 } },
+			{
+				$group: {
+					_id: '$name',
+					last_run_date: { $first: '$last_run_date' },
+					status: { $first: '$status' },
+					job: { $first: '$job' },
+					screenshot: { $first: '$screenshot' },
+				},
+			}, { $sort: { last_run_date: -1 } },
+		])
+			.then(TCs => {
+				if (!TCs) return res.status(400).send()
+				res.status(200).send(TCs)
+			})
+			.catch(err => {
+				next(err)
+			})
+	})
+
 // fetches all details of a Testcase by name, used for TC page
 router.route('/TCByName/:name')
 	.get((req, res, next) => {
