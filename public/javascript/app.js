@@ -114930,13 +114930,18 @@ var BP = function (_Component) {
 
 		var _this = _possibleConstructorReturn(this, (BP.__proto__ || Object.getPrototypeOf(BP)).call(this, props));
 
-		_this.state = { loading: true,
+		_this.state = {
+			loading: true,
 			commentOpen: false,
-			bugIdOpen: false
+			bugIdOpen: false,
+			latest: false,
+			toggleText: 'Show Latest'
 		};
 
 		_this.closeUserModal = _this.closeUserModal.bind(_this);
 		_this.closeAutoModal = _this.closeAutoModal.bind(_this);
+		_this.fetchDataLatest = _this.fetchDataLatest.bind(_this);
+		_this.toggle = _this.toggle.bind(_this);
 		_this.closeBugId = _this.closeBugId.bind(_this);
 		return _this;
 	}
@@ -114953,6 +114958,38 @@ var BP = function (_Component) {
 					loading: false
 				});
 			});
+		}
+	}, {
+		key: 'fetchDataLatest',
+		value: function fetchDataLatest() {
+			var _this3 = this;
+
+			_jquery2.default.get('/db/BPByBPandBPG/' + this.props.bpName + '/' + this.props.bpgName + '/latest').done(function (data) {
+				_this3.setState({
+					name: _this3.props.id,
+					data: data,
+					loading: false
+				});
+			});
+		}
+	}, {
+		key: 'toggle',
+		value: function toggle() {
+			if (this.state.latest) {
+				this.setState({
+					latest: false,
+					toggleText: 'Show Latest',
+					loading: true
+				});
+				this.fetchData();
+			} else {
+				this.setState({
+					latest: true,
+					toggleText: 'Show All',
+					loading: true
+				});
+				this.fetchDataLatest();
+			}
 		}
 	}, {
 		key: 'closeUserModal',
@@ -114977,7 +115014,7 @@ var BP = function (_Component) {
 	}, {
 		key: 'render',
 		value: function render() {
-			var _this3 = this;
+			var _this4 = this;
 
 			return _react2.default.createElement(
 				'div',
@@ -115019,13 +115056,17 @@ var BP = function (_Component) {
 										position: 'absolute',
 										left: 0
 									}, onClick: function onClick() {
-										_this3.props.prev();
+										_this4.props.prev();
+									} }),
+								_react2.default.createElement(_semanticUiReact.Button, { secondary: true, content: _this4.state.toggleText, onClick: _this4.toggle, style: {
+										position: 'absolute',
+										right: 0
 									} }),
 								_react2.default.createElement(
 									'h1',
 									{ style: { margin: 0 } },
 									'Business Process Details: ',
-									_this3.state.name
+									_this4.state.name
 								)
 							);
 						},
@@ -115036,7 +115077,7 @@ var BP = function (_Component) {
 							Cell: function Cell(row) {
 								return _react2.default.createElement(
 									_reactRouterDom.Link,
-									{ to: _this3.props.next + '/' + row.original._id },
+									{ to: _this4.props.next + '/' + row.original._id },
 									row.original._id
 								);
 							}
@@ -115061,7 +115102,7 @@ var BP = function (_Component) {
 									'a',
 									{ href: 'javascript:void(0)', onClick: function onClick() {
 											console.log(row);
-											_this3.setState({
+											_this4.setState({
 												userCommentOpen: true,
 												modalTcId: row.original._id
 											});
@@ -115076,7 +115117,7 @@ var BP = function (_Component) {
 								return _react2.default.createElement(
 									'a',
 									{ href: 'javascript:void(0)', onClick: function onClick() {
-											_this3.setState({
+											_this4.setState({
 												autoCommentOpen: true,
 												modalTcId: row.original._id
 											});
@@ -115091,7 +115132,7 @@ var BP = function (_Component) {
 								return _react2.default.createElement(
 									'a',
 									{ href: 'javascript:void(0)', onClick: function onClick() {
-											_this3.setState({
+											_this4.setState({
 												bugIdOpen: true,
 												modalTcId: row.original._id
 											});

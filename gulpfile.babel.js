@@ -1,31 +1,17 @@
 var gulp = require('gulp'),
-	autoprefixer = require('gulp-autoprefixer'),
 	browserSync = require('browser-sync'),
 	browserify = require('browserify'),
 	buffer = require('vinyl-buffer'),
 	concat = require('gulp-concat'),
 	eslint = require('gulp-eslint'),
-	filter = require('gulp-filter'),
-	newer = require('gulp-newer'),
-	notify = require('gulp-notify'),
-	plumber = require('gulp-plumber'),
 	path = require('path'),
 	nodemon = require('gulp-nodemon'),
 	reload = browserSync.reload,
-//	sass = require('gulp-ruby-sass'),
+	//	sass = require('gulp-ruby-sass'),
 	sourcemaps = require('gulp-sourcemaps'),
 	babelify = require('babelify'),
 	source = require('vinyl-source-stream'),
 
-	plumberOptions = {
-		errorHandler (err) {
-			notify.onError({
-				title: 'Error',
-				message: '<%= error %>',
-			})(err)
-			this.emit('end')
-		},
-	},
 	dir = {
 		src: {
 			jsx: 'src/components',
@@ -58,23 +44,6 @@ gulp.task('jsx', () =>
 		.pipe(sourcemaps.write(dir.sourcemaps))
 		.pipe(gulp.dest(dir.dest.js))
 		.pipe(reload({ stream: true })))
-
-// // Compile Sass to CSS
-// gulp.task('sass', () => {
-// 	var autoprefixerOptions = { browsers: [ 'last 2 versions' ] },
-// 		filterOptions = '**/*.css'
-//
-// 	return sass(path.join(dir.src.sass, 'main.scss'), {
-// 		sourcemap: true,
-// 		style: 'compressed',
-// 	})
-// 		.pipe(autoprefixer(autoprefixerOptions))
-// 		.pipe(sourcemaps.init())
-// 		.pipe(sourcemaps.write(dir.sourcemaps))
-// 		.pipe(gulp.dest(dir.dest.css))
-// 		.pipe(filter(filterOptions))
-// 		.pipe(reload({ stream: true }))
-// })
 
 // Watch JS/JSX and Sass files
 gulp.task('watch', () => {
