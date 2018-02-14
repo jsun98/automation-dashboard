@@ -75,7 +75,7 @@ class BPG extends Component {
 					}}>Skip</div>,
 				accessor: 'skip',
 				maxWidth: 100,
-			}/*, {
+			}, /* , {
 				id: 'last_run_date',
 				Header: 'Last Run',
 				minWidth: 150,

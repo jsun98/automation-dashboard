@@ -5,10 +5,12 @@ import BPG from './BPG'
 import BPGList from './BPGList'
 import ReactDOM from 'react-dom'
 import TC from './TC'
+import Error from './Error'
 import {
 	BrowserRouter as Router,
 	Route,
 	withRouter,
+	Switch,
 } from 'react-router-dom'
 
 // some style settings for tables
@@ -27,11 +29,13 @@ const BPGWrapper = ({ match, history }) => <BPG next='/BP' prev={history.goBack}
 const BPWrapper = ({ match, history }) => <BP next='/TC' prev={history.goBack} bpName={match.params.bpName} bpgName={match.params.bpgName} tableStyle={tableStyle} />
 const TCWrapper = ({ match, history }) => <TC prev={history.goBack} id={match.params.id} tableStyle={tableStyle} />
 
+
 // further wrap the wrapper components to gain access to browser history
 const BPwr = withRouter(BPWrapper)
 const BPGwr = withRouter(BPGWrapper)
 const BPGListwr = withRouter(BPGListWrapper)
 const TCwr = withRouter(TCWrapper)
+const Err = withRouter(() => <Error />)
 
 // this is the top level wrapper class for the application
 // it assembles all the components and render the final view
@@ -39,10 +43,13 @@ const TCwr = withRouter(TCWrapper)
 const App = () => (
 	<Router>
 		<div>
-			<Route exact path="/BPG" component={BPGListwr}/>
-			<Route exact path="/BPG/:id" component={BPGwr}/>
-			<Route exact path="/BP/:bpName/:bpgName" component={BPwr}/>
-			<Route exact path="/TC/:id" component={TCwr}/>
+			<Switch>
+				<Route exact path="/BPG" component={BPGListwr}/>
+				<Route exact path="/BPG/:id" component={BPGwr}/>
+				<Route exact path="/BP/:bpName/:bpgName" component={BPwr}/>
+				<Route exact path="/TC/:id" component={TCwr}/>
+				<Route path="/" component={Err}/>
+			</Switch>
 		</div>
 	</Router>
 )

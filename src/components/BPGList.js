@@ -1,8 +1,8 @@
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
+import { Button } from 'semantic-ui-react'
 import $ from 'jquery'
-import Moment from 'moment'
 import ReactTable from 'react-table'
 
 // this class displays the list of BPGs page
@@ -37,6 +37,12 @@ class BPGList extends Component {
 		const columns = [ {
 			Header: () =>
 				<div>
+					<Button secondary content="Select Env" icon='left arrow' labelPosition='left' style={{
+						position: 'absolute',
+						left: 0,
+					}} onClick={() => {
+						window.location.replace('/')
+					}}/>
 					<h1 style={{ margin: 0 }}>Business Process Group List</h1>
 				</div>,
 			columns: [ {

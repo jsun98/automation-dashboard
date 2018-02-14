@@ -1,4 +1,71 @@
-@font-face{font-family:"My Custom Font";src:url(http://www.example.org/mycustomfont.ttf) format("truetype")}a{color:inherit;text-decoration:inherit}.header{background-color:black;height:50px;width:100%;margin:0, auto;position:relative;font-size:1.7em;top:0}.header-text,.header .left-text,.header .right-text{color:white;padding-top:16px;position:absolute}.header .left-text{left:30px}.header .right-text{right:30px;top:0px;margin:0}.header img{display:block;margin:0 auto;width:auto;height:auto;padding-top:12px}@media all and (-ms-high-contrast: none){.rt-table{min-height:430px !important}*::-ms-backdrop,.rt-table{min-height:400px !important}}
+@font-face {
+    font-family: "My Custom Font";
+    src: url(http://www.example.org/mycustomfont.ttf) format("truetype");
+}
+
+a {
+  color: inherit; /* blue colors for links too */
+  text-decoration: inherit; /* no underline */
+}
+
+/**
+HEADER BAR
+**/
+.header {
+	background-color: black;
+	height: 50px;
+	width: 100%;
+	margin: 0, auto;
+	position: relative;
+	font-size: 1.7em;
+	top: 0;
+}
+
+.header-text {
+	color: white;
+	padding-top: 16px;
+	position: absolute;
+}
 
 
-/*# sourceMappingURL=sourcemaps/main.css.map */
+.header .left-text {
+  color: white;
+	padding-top: 16px;
+	position: absolute;
+	left: 30px;
+}
+
+.header .right-text {
+  color: white;
+	padding-top: 16px;
+	position: absolute;
+	right: 30px;
+	top: 0px;
+	margin: 0;
+}
+
+.header img {
+	display: block;
+	margin: 0 auto;
+	width: auto;
+	height: auto;
+	padding-top: 12px;
+}
+
+@media all and (-ms-high-contrast:none)
+ {
+	 .rt-table {
+		 min-height: 430px !important;
+	 }
+	 *::-ms-backdrop, 		.rt-table {
+				 min-height: 400px !important;
+			 }
+ }
+
+ .error-container {
+   text-align: center;
+ }
+
+ .error-msg {
+   font-size: 16pt;
+ }

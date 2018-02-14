@@ -115329,12 +115329,8 @@ var BPG = function (_Component) {
 						);
 					},
 					accessor: 'skip',
-					maxWidth: 100 /*, {
-                   id: 'last_run_date',
-                   Header: 'Last Run',
-                   minWidth: 150,
-                   accessor: r => Moment(r.last_run_date).format('MMM Do, YYYY HH:mm:ss'),
-                   } */ }]
+					maxWidth: 100
+				}]
 			}];
 
 			return _react2.default.createElement(
@@ -115404,13 +115400,11 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactRouterDom = require('react-router-dom');
 
+var _semanticUiReact = require('semantic-ui-react');
+
 var _jquery = require('jquery');
 
 var _jquery2 = _interopRequireDefault(_jquery);
-
-var _moment = require('moment');
-
-var _moment2 = _interopRequireDefault(_moment);
 
 var _reactTable = require('react-table');
 
@@ -115477,6 +115471,12 @@ var BPGList = function (_Component) {
 					return _react2.default.createElement(
 						'div',
 						null,
+						_react2.default.createElement(_semanticUiReact.Button, { secondary: true, content: 'Select Env', icon: 'left arrow', labelPosition: 'left', style: {
+								position: 'absolute',
+								left: 0
+							}, onClick: function onClick() {
+								window.location.replace('/');
+							} }),
 						_react2.default.createElement(
 							'h1',
 							{ style: { margin: 0 } },
@@ -115593,7 +115593,7 @@ var BPGList = function (_Component) {
 
 exports.default = BPGList;
 
-},{"jquery":492,"moment":856,"react":1070,"react-router-dom":1009,"react-table":1034,"recharts":1111}],1398:[function(require,module,exports){
+},{"jquery":492,"react":1070,"react-router-dom":1009,"react-table":1034,"recharts":1111,"semantic-ui-react":1279}],1398:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -115874,7 +115874,39 @@ var CommentModal = function CommentModal(_ref) {
 
 exports.default = CommentModal;
 
-},{"./UserComments":1403,"react":1070,"semantic-ui-react":1279}],1401:[function(require,module,exports){
+},{"./UserComments":1404,"react":1070,"semantic-ui-react":1279}],1401:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Error = function Error(props) {
+	return _react2.default.createElement(
+		"div",
+		{ className: "error-container" },
+		_react2.default.createElement(
+			"h1",
+			null,
+			"Error"
+		),
+		_react2.default.createElement(
+			"p",
+			{ className: "error-msg" },
+			"The page you are trying to access does not exist."
+		)
+	);
+};
+
+exports.default = Error;
+
+},{"react":1070}],1402:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -115916,7 +115948,7 @@ var ErrorModal = function ErrorModal(_ref) {
 
 exports.default = ErrorModal;
 
-},{"react":1070,"semantic-ui-react":1279}],1402:[function(require,module,exports){
+},{"react":1070,"semantic-ui-react":1279}],1403:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -116224,7 +116256,7 @@ var TC = function (_Component) {
 
 exports.default = TC;
 
-},{"./CommentModal":1400,"./ErrorModal":1401,"jquery":492,"moment":856,"react":1070,"react-table":1034,"recharts":1111,"semantic-ui-react":1279}],1403:[function(require,module,exports){
+},{"./CommentModal":1400,"./ErrorModal":1402,"jquery":492,"moment":856,"react":1070,"react-table":1034,"recharts":1111,"semantic-ui-react":1279}],1404:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -116439,7 +116471,7 @@ var UserComments = function (_Component) {
 
 exports.default = UserComments;
 
-},{"jquery":492,"moment":856,"react":1070,"semantic-ui-react":1279}],1404:[function(require,module,exports){
+},{"jquery":492,"moment":856,"react":1070,"semantic-ui-react":1279}],1405:[function(require,module,exports){
 'use strict';
 
 require('babel-polyfill');
@@ -116467,6 +116499,10 @@ var _reactDom2 = _interopRequireDefault(_reactDom);
 var _TC = require('./TC');
 
 var _TC2 = _interopRequireDefault(_TC);
+
+var _Error = require('./Error');
+
+var _Error2 = _interopRequireDefault(_Error);
 
 var _reactRouterDom = require('react-router-dom');
 
@@ -116506,6 +116542,9 @@ var BPwr = (0, _reactRouterDom.withRouter)(BPWrapper);
 var BPGwr = (0, _reactRouterDom.withRouter)(BPGWrapper);
 var BPGListwr = (0, _reactRouterDom.withRouter)(BPGListWrapper);
 var TCwr = (0, _reactRouterDom.withRouter)(TCWrapper);
+var Err = (0, _reactRouterDom.withRouter)(function () {
+	return _react2.default.createElement(_Error2.default, null);
+});
 
 // this is the top level wrapper class for the application
 // it assembles all the components and render the final view
@@ -116517,10 +116556,15 @@ var App = function App() {
 		_react2.default.createElement(
 			'div',
 			null,
-			_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/BPG', component: BPGListwr }),
-			_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/BPG/:id', component: BPGwr }),
-			_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/BP/:bpName/:bpgName', component: BPwr }),
-			_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/TC/:id', component: TCwr })
+			_react2.default.createElement(
+				_reactRouterDom.Switch,
+				null,
+				_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/BPG', component: BPGListwr }),
+				_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/BPG/:id', component: BPGwr }),
+				_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/BP/:bpName/:bpgName', component: BPwr }),
+				_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/TC/:id', component: TCwr }),
+				_react2.default.createElement(_reactRouterDom.Route, { path: '/', component: Err })
+			)
 		)
 	);
 };
@@ -116528,6 +116572,6 @@ var App = function App() {
 // ReactDOM is only called once to mount our entire application on a <div> with id 'root'
 _reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById('root'));
 
-},{"./BP":1395,"./BPG":1396,"./BPGList":1397,"./TC":1402,"babel-polyfill":1,"react":1070,"react-dom":868,"react-router-dom":1009}]},{},[1404]);
+},{"./BP":1395,"./BPG":1396,"./BPGList":1397,"./Error":1401,"./TC":1403,"babel-polyfill":1,"react":1070,"react-dom":868,"react-router-dom":1009}]},{},[1405]);
 
 //# sourceMappingURL=sourcemaps/app.js.map
