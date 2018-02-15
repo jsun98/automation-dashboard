@@ -7487,6 +7487,10 @@ react-dom@^15.6.1:
     object-assign "^4.1.0"
     prop-types "^15.5.10"
 
+react-edit-inline@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/react-edit-inline/-/react-edit-inline-1.0.8.tgz#d144670b5217b5adc6c5bcb6976fc6b257f09b72"
+
 react-resize-detector@0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/react-resize-detector/-/react-resize-detector-0.4.1.tgz#19f8b993e1e869e2879344e20dc23c4fac28b256"
