@@ -27,7 +27,7 @@ const
 		},
 		env: {
 			type: String,
-			enum: [ 'TST', 'SIT2', 'OAT', 'SIT3','CSIT' ],
+			enum: [ 'TST', 'SIT2', 'OAT', 'OAT2', 'SIT3', 'CSIT' ],
 			uppercase: true,
 			required: true,
 			default: 'SIT3',

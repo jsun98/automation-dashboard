@@ -7,14 +7,20 @@ import ReactTable from 'react-table'
 
 // this class displays the list of BPGs page
 class BPGList extends Component {
-	constructor (props) {
+	constructor(props) {
 		super(props) // required by reactjs semantics
-		this.state = { loading: true } // initially, show page loading animation
+		this.state = {
+			loading: true,
+			latest: true,
+			toggleText: "Show All"
+		} // initially, show page loading animation
 
+		this.fetchDataAll = this.fetchDataAll.bind(this)
+		this.toggle = this.toggle.bind(this)
 	}
 
 	// this fetches data from server endpoint
-	fetchData () {
+	fetchData() {
 		$.get('/db/BPG')
 			.done(data => {
 				console.log(data)
@@ -25,16 +31,46 @@ class BPGList extends Component {
 			})
 	}
 
+	fetchDataAll() {
+		$.get('/db/BPG/All')
+			.done(data => {
+				console.log(data)
+				this.setState({
+					data,
+					loading: false,
+				})
+			})
+	}
+
+	toggle() {
+		if (this.state.latest) {
+			this.setState({
+				latest: false,
+				toggleText: 'Show Latest',
+				loading: true,
+			})
+			this.fetchDataAll()
+		} else {
+			this.setState({
+				latest: true,
+				toggleText: 'Show All',
+				loading: true,
+			})
+			this.fetchData()
+		}
+
+	}
+
 	// this fires before class is constructed, get initial data
-	componentDidMount () {
+	componentDidMount() {
 		this.fetchData()
 	}
 
 	// render view
-	render () {
+	render() {
 
 		// define columns
-		const columns = [ {
+		const columns = [{
 			Header: () =>
 				<div>
 					<Button secondary content="Select Env" icon='left arrow' labelPosition='left' style={{
@@ -42,10 +78,14 @@ class BPGList extends Component {
 						left: 0,
 					}} onClick={() => {
 						window.location.replace('/')
-					}}/>
+					}} />
+					<Button secondary content={this.state.toggleText} onClick={this.toggle} style={{
+						position: 'absolute',
+						right: 0,
+					}} />
 					<h1 style={{ margin: 0 }}>Business Process Group List</h1>
 				</div>,
-			columns: [ {
+			columns: [{
 				Header: 'Business Process Group Name',
 				accessor: 'name',
 				minWidth: 300,
@@ -77,27 +117,27 @@ class BPGList extends Component {
 					}}>Skip</div>,
 				accessor: 'skip',
 				maxWidth: 100,
-			} ],
-		} ]
+			}],
+		}]
 
 		return (
 			<div>
-				{ /* define table, details see TC.js */ }
+				{ /* define table, details see TC.js */}
 				<ReactTable
-					loading={ this.state.loading }
-					data={ this.state.data }
-					resizable={ this.props.tableStyle.resizable }
-					className={ this.props.tableStyle.className }
-					style={ this.props.tableStyle.style }
+					loading={this.state.loading}
+					data={this.state.data}
+					resizable={this.props.tableStyle.resizable}
+					className={this.props.tableStyle.className}
+					style={this.props.tableStyle.style}
 					defaultPageSize={6}
 					columns={columns}
 				/>
 				<h1 style={{ textAlign: 'center' }}>Graph</h1>
 
-				{ /* defines a barchart */ }
+				{ /* defines a barchart */}
 				<ResponsiveContainer height={500}>
 					<BarChart
-						data={ this.state.data }
+						data={this.state.data}
 						maxBarSize={100}
 						margin={{
 							top: 20,
@@ -105,10 +145,10 @@ class BPGList extends Component {
 							left: 20,
 							bottom: 5,
 						}}>
-						<XAxis dataKey="_id"/>
-						<YAxis/>
-						<CartesianGrid strokeDasharray="3 3"/>
-						<Tooltip/>
+						<XAxis dataKey="_id" />
+						<YAxis />
+						<CartesianGrid strokeDasharray="3 3" />
+						<Tooltip />
 						<Legend />
 						<Bar dataKey="pass" stackId="a" fill="#60BD68" />
 						<Bar dataKey="fail" stackId="a" fill="#F15854" />

@@ -116,7 +116,7 @@ app.use(cookieSession({
 app.use(express.static(path.join(__dirname, 'public')))
 
 // connect to database
-mongoose.connect(process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/dashboard', { useMongoClient: true })
+mongoose.connect(process.env.MONGODB_URL || 'mongodb://10.115.17.17:27017/dashboard', { useMongoClient: true })
 
 // top level routes, for more detail, see ./routes
 app.use('/db', require('./routes/REST'))
@@ -156,10 +156,8 @@ function normalizePort (val) {
 	if (isNaN(port))
 		return val
 
-
 	if (port >= 0)
 		return port
-
 
 	return false
 }

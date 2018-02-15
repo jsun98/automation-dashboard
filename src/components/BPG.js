@@ -8,13 +8,20 @@ import ReactTable from 'react-table'
 
 // this class renders the BPG details page
 class BPG extends Component {
-	constructor (props) {
+	constructor(props) {
 		super(props) // required by reactjs semantics
-		this.state = { loading: true } // initially don't show loading animation
+		this.state = {
+			loading: true,
+			latest: true,
+			toggleText: "Show All"
+		} // initially don't show loading animation
+
+		this.fetchDataAll = this.fetchDataAll.bind(this)
+		this.toggle = this.toggle.bind(this)
 	}
 
 	// fetches data from server
-	fetchData () {
+	fetchData() {
 		$.get('/db/BPGByName/' + this.props.id)
 			.done(data => {
 				this.setState({
@@ -25,14 +32,44 @@ class BPG extends Component {
 			})
 	}
 
+	fetchDataAll() {
+		$.get('/db/BPGByName/' + this.props.id + "/All")
+			.done(data => {
+				this.setState({
+					name: this.props.id,
+					data,
+					loading: false,
+				})
+			})
+	}
+
+	toggle() {
+		if (this.state.latest) {
+			this.setState({
+				latest: false,
+				toggleText: 'Show Latest',
+				loading: true,
+			})
+			this.fetchDataAll()
+		} else {
+			this.setState({
+				latest: true,
+				toggleText: 'Show All',
+				loading: true,
+			})
+			this.fetchData()
+		}
+
+	}
+
 	// load initial data
-	componentDidMount () {
+	componentDidMount() {
 		this.fetchData()
 	}
 
 	// render view, details see TC.js
-	render () {
-		const columns = [ {
+	render() {
+		const columns = [{
 			Header: () =>
 				<div>
 					<Button secondary content="back" icon='left arrow' labelPosition='left' style={{
@@ -40,10 +77,14 @@ class BPG extends Component {
 						left: 0,
 					}} onClick={() => {
 						this.props.prev()
-					}}/>
+					}} />
+					<Button secondary content={this.state.toggleText} onClick={this.toggle} style={{
+						position: 'absolute',
+						right: 0,
+					}} />
 					<h1 style={{ margin: 0 }}>Business Process Group Details: {this.state.name}</h1>
 				</div>,
-			columns: [ {
+			columns: [{
 				Header: 'Business Process Name',
 				accessor: 'name',
 				minWidth: 200,
@@ -81,23 +122,23 @@ class BPG extends Component {
 				minWidth: 150,
 				accessor: r => Moment(r.last_run_date).format('MMM Do, YYYY HH:mm:ss'),
 			} */],
-		} ]
+		}]
 
 		return (
 			<div>
 				<ReactTable
-					loading={ this.state.loading }
-					data={ this.state.data }
-					resizable={ this.props.tableStyle.resizable }
-					className={ this.props.tableStyle.className }
-					style={ this.props.tableStyle.style }
+					loading={this.state.loading}
+					data={this.state.data}
+					resizable={this.props.tableStyle.resizable}
+					className={this.props.tableStyle.className}
+					style={this.props.tableStyle.style}
 					defaultPageSize={10}
-					columns = { columns }
+					columns={columns}
 				/>
 				<h1 style={{ textAlign: 'center' }}>Graph</h1>
 				<ResponsiveContainer height={500}>
 					<BarChart
-						data={ this.state.data }
+						data={this.state.data}
 						maxBarSize={100}
 						margin={{
 							top: 20,
@@ -105,10 +146,10 @@ class BPG extends Component {
 							left: 20,
 							bottom: 5,
 						}}>
-						<XAxis dataKey="_id"/>
-						<YAxis/>
-						<CartesianGrid strokeDasharray="3 3"/>
-						<Tooltip/>
+						<XAxis dataKey="_id" />
+						<YAxis />
+						<CartesianGrid strokeDasharray="3 3" />
+						<Tooltip />
 						<Legend />
 						<Bar dataKey="pass" stackId="a" fill="#60BD68" />
 						<Bar dataKey="fail" stackId="a" fill="#F15854" />

@@ -1,13 +1,25 @@
 const
 	express = require('express'),
 	router = express.Router(),
-	TC = require('../model/TestCase')
+	TC = require('../model/TestCase');
+
+var cDate = new Date(Date.now());
+var yDate = new Date('2018-01-01T18:00:00.000Z');
+yDate.setDate(cDate.getDate() - 1);
+yDate.setMonth(cDate.getMonth());
 
 // fetches all BPGs, used for BPGList page
 router.route('/BPG')
 	.get((req, res, next) => {
 		TC.aggregate([
-			{ $match: { env: req.session.env } },
+			{
+				$match: {
+					env: req.session.env,
+					last_run_date: {
+						$gte: yDate
+					}
+				},
+			},
 			{ $sort: { last_run_date: -1 } },
 			{
 				$group: {
@@ -21,9 +33,44 @@ router.route('/BPG')
 				$group: {
 					_id: '$BPG',
 					last_run_date: { $max: '$last_run_date' },
-					pass: { $sum: { $cond: [ { $eq: [ '$status', 'pass' ] }, 1, 0 ] } },
-					fail: { $sum: { $cond: [ { $eq: [ '$status', 'fail' ] }, 1, 0 ] } },
-					skip: { $sum: { $cond: [ { $eq: [ '$status', 'skip' ] }, 1, 0 ] } },
+					pass: { $sum: { $cond: [{ $eq: ['$status', 'pass'] }, 1, 0] } },
+					fail: { $sum: { $cond: [{ $eq: ['$status', 'fail'] }, 1, 0] } },
+					skip: { $sum: { $cond: [{ $eq: ['$status', 'skip'] }, 1, 0] } },
+				},
+			}, { $sort: { _id: 1 } },
+		])
+			.then(BPG => {
+				res.status(200).send(BPG)
+			})
+			.catch(err => {
+				next(err)
+			})
+	})
+
+router.route('/BPG/All')
+	.get((req, res, next) => {
+		TC.aggregate([
+			{
+				$match: {
+					env: req.session.env,
+				},
+			},
+			{ $sort: { last_run_date: -1 } },
+			{
+				$group: {
+					_id: '$name',
+					last_run_date: { $first: '$last_run_date' },
+					status: { $first: '$status' },
+					BPG: { $first: '$BPG' },
+				},
+			},
+			{
+				$group: {
+					_id: '$BPG',
+					last_run_date: { $max: '$last_run_date' },
+					pass: { $sum: { $cond: [{ $eq: ['$status', 'pass'] }, 1, 0] } },
+					fail: { $sum: { $cond: [{ $eq: ['$status', 'fail'] }, 1, 0] } },
+					skip: { $sum: { $cond: [{ $eq: ['$status', 'skip'] }, 1, 0] } },
 				},
 			}, { $sort: { _id: 1 } },
 		])
@@ -37,6 +84,48 @@ router.route('/BPG')
 
 // fetches the details of a single BPG by name, used for BPG page
 router.route('/BPGByName/:name')
+	.get((req, res, next) => {
+		const BPGName = req.params.name
+
+		// we need to perform a aggregation (basically calculate the total number of pass, fail, skip, which is not directly stored in database)
+		TC.aggregate([
+			{
+				$match: {
+					env: req.session.env,
+					BPG: BPGName,
+					last_run_date: {
+						$gte: yDate
+					}
+				},
+			},
+			{ $sort: { last_run_date: -1 } },
+			{
+				$group: {
+					_id: '$name',
+					last_run_date: { $first: '$last_run_date' },
+					status: { $first: '$status' },
+					BP: { $first: '$BP' },
+				},
+			},
+			{
+				$group: {
+					_id: '$BP',
+					last_run_date: { $max: '$last_run_date' },
+					pass: { $sum: { $cond: [{ $eq: ['$status', 'pass'] }, 1, 0] } },
+					fail: { $sum: { $cond: [{ $eq: ['$status', 'fail'] }, 1, 0] } },
+					skip: { $sum: { $cond: [{ $eq: ['$status', 'skip'] }, 1, 0] } },
+				},
+			}, { $sort: { last_run_date: -1 } },
+		])
+			.then(BP => {
+				res.status(200).send(BP)
+			})
+			.catch(err => {
+				next(err)
+			})
+	})
+
+router.route('/BPGByName/:name/All')
 	.get((req, res, next) => {
 		const BPGName = req.params.name
 
@@ -61,9 +150,9 @@ router.route('/BPGByName/:name')
 				$group: {
 					_id: '$BP',
 					last_run_date: { $max: '$last_run_date' },
-					pass: { $sum: { $cond: [ { $eq: [ '$status', 'pass' ] }, 1, 0 ] } },
-					fail: { $sum: { $cond: [ { $eq: [ '$status', 'fail' ] }, 1, 0 ] } },
-					skip: { $sum: { $cond: [ { $eq: [ '$status', 'skip' ] }, 1, 0 ] } },
+					pass: { $sum: { $cond: [{ $eq: ['$status', 'pass'] }, 1, 0] } },
+					fail: { $sum: { $cond: [{ $eq: ['$status', 'fail'] }, 1, 0] } },
+					skip: { $sum: { $cond: [{ $eq: ['$status', 'skip'] }, 1, 0] } },
 				},
 			}, { $sort: { last_run_date: -1 } },
 		])
@@ -77,6 +166,41 @@ router.route('/BPGByName/:name')
 
 // fetches details of a single BP by name, used for BP page
 router.route('/BPByName/:name')
+	.get((req, res, next) => {
+		const BPName = req.params.name
+
+		// we need to perform a aggregation (basically calculate the total number of pass, fail, skip, which is not directly stored in database)
+		TC.aggregate([
+			{
+				$match: {
+					env: req.session.env,
+					BP: BPName,
+					last_run_date: {
+						'$gte': yDate
+					}
+				},
+			},
+			{ $sort: { last_run_date: -1 } },
+			{
+				$group: {
+					_id: '$name',
+					last_run_date: { $first: '$last_run_date' },
+					status: { $first: '$status' },
+					job: { $first: '$job' },
+					screenshot: { $first: '$screenshot' },
+				},
+			}, { $sort: { last_run_date: -1 } },
+		])
+			.then(TCs => {
+				if (!TCs) return res.status(400).send()
+				res.status(200).send(TCs)
+			})
+			.catch(err => {
+				next(err)
+			})
+	})
+
+router.route('/BPByName/:name/All')
 	.get((req, res, next) => {
 		const BPName = req.params.name
 
@@ -121,6 +245,10 @@ router.route('/BPByBPandBPG/:bpName/:bpgName')
 					env: req.session.env,
 					BP: BPName,
 					BPG: BPGName,
+					//checking for 'last_run_date' greater than yesterday's date and after 6PM
+					last_run_date: {
+						$gte: yDate
+					}
 				},
 			},
 			{ $sort: { last_run_date: -1 } },
@@ -131,6 +259,7 @@ router.route('/BPByBPandBPG/:bpName/:bpgName')
 					status: { $first: '$status' },
 					job: { $first: '$job' },
 					screenshot: { $first: '$screenshot' },
+					bugId: {$first: '$bugId'}
 				},
 			}, { $sort: { last_run_date: -1 } },
 		])
@@ -145,14 +274,10 @@ router.route('/BPByBPandBPG/:bpName/:bpgName')
 
 //This route should be used when user clicks on "Toggle Latest" button on the "Business Process Details" page
 //fetches details of a single BP but only for those testcases which were executed within the last 24hours
-router.route('/BPByBPandBPG/:bpName/:bpgName/latest')
+router.route('/BPByBPandBPG/:bpName/:bpgName/All')
 	.get((req, res, next) => {
 		const BPName = req.params.bpName
 		const BPGName = req.params.bpgName
-		var cDate = new Date(Date.now());
-		var	yDate = new Date('2018-01-01T18:00:00.000Z');
-		yDate.setDate(cDate.getDate() - 1);
-		yDate.setMonth(cDate.getMonth());
 
 		// we need to perform a aggregation (basically calculate the total number of pass, fail, skip, which is not directly stored in database)
 		TC.aggregate([
@@ -161,10 +286,6 @@ router.route('/BPByBPandBPG/:bpName/:bpgName/latest')
 					env: req.session.env,
 					BP: BPName,
 					BPG: BPGName,
-					//checking for 'last_run_date' greater than yesterday's date and after 6PM
-					last_run_date: {
-						'$gte': yDate 
-					}
 				},
 			},
 			{ $sort: { last_run_date: -1 } },
@@ -175,6 +296,7 @@ router.route('/BPByBPandBPG/:bpName/:bpgName/latest')
 					status: { $first: '$status' },
 					job: { $first: '$job' },
 					screenshot: { $first: '$screenshot' },
+					bugId: {$first: '$bugId'}
 				},
 			}, { $sort: { last_run_date: -1 } },
 		])
@@ -194,7 +316,7 @@ router.route('/TCByName/:name')
 			name: req.params.name,
 			env: req.session.env,
 		}, 'last_run_date status screenshot error', // this means we only select these fields to be returned
-		{ sort: { last_run_date: -1 } })
+			{ sort: { last_run_date: -1 } })
 			.then(testCases => {
 				res.status(200).send(testCases)
 			})
@@ -206,34 +328,35 @@ router.route('/TCByName/:name')
 
 // endpoint for fetching/adding new user comments
 router.route('/Comment/:id')
-    .get((req, res, next) => { // fetch
-        TC.findById(req.params.id, 'Comment')
-            .then(testCase => {
-                if (!testCase) return res.status(404).send()
-                testCase.Comments.sort((a, b) => {
-                    var keyA = new Date(a.time),
-                        keyB = new Date(b.time)
-                    if (keyA < keyB) return -1
-                    if (keyA > keyB) return 1
-                    return 0
-                })
-                res.status(200).send(testCase.Comments)
-            })
-            .catch(err => {
-                next(err)
-            })
-    })
-    .put((req, res, next) => { // add
-        if (!req.body.author || !req.body.text) return res.status(400).end()
-        TC.findByIdAndUpdate(req.params.id, { $push: { Comments: req.body } })
-            .then(testCase => {
-                if (!testCase) res.status(404).send('test case not found')
-                res.status(200).send()
-            })
-            .catch(err => {
-                next(err)
-            })
-    })
+	.get((req, res, next) => { // fetch
+		TC.findById(req.params.id, 'Comment')
+			.then(testCase => {
+				if (!testCase) return res.status(404).send()
+				testCase.Comments.sort((a, b) => {
+					var keyA = new Date(a.time),
+						keyB = new Date(b.time)
+					if (keyA < keyB) return -1
+					if (keyA > keyB) return 1
+					return 0
+				})
+				res.status(200).send(testCase.Comments)
+			})
+			.catch(err => {
+				next(err)
+			})
+	})
+	.put((req, res, next) => { // add
+		if (!req.body.author || !req.body.text) return res.status(400).end()
+		TC.findByIdAndUpdate(req.params.id, { $push: { Comments: req.body } })
+			.then(testCase => {
+				if (!testCase) res.status(404).send('test case not found')
+				res.status(200).send()
+			})
+			.catch(err => {
+				next(err)
+			})
+	})
+
 // endpoint for fetching/adding new user comments
 router.route('/userComment/:id')
 	.get((req, res, next) => { // fetch
@@ -296,84 +419,82 @@ router.route('/autoComment/:id')
 			})
 	})
 
+router.route('/combinedUserComment/:name')
+	.get((req, res, next) => { // fetch
+		TC.find({ name: req.params.name }, 'userComment')
+			.then(testCases => {
+				if (testCases.length == 0) return res.status(404).send()
 
-	router.route('/combinedUserComment/:name')
-		.get((req, res, next) => { // fetch
-			TC.find({name: req.params.name}, 'userComment')
-				.then(testCases => {
-					if (testCases.length == 0) return res.status(404).send()
+				var comment = testCases.reduce((a, i) => a.concat(i.userComment), [])
 
-					var comment = testCases.reduce((a, i) => a.concat(i.userComment), [])
-
-					comment.sort((a, b) => {
-						var keyA = new Date(a.time),
-							keyB = new Date(b.time)
-						if (keyA < keyB) return -1
-						if (keyA > keyB) return 1
-						return 0
-					})
-					res.status(200).send(comment)
+				comment.sort((a, b) => {
+					var keyA = new Date(a.time),
+						keyB = new Date(b.time)
+					if (keyA < keyB) return -1
+					if (keyA > keyB) return 1
+					return 0
 				})
-				.catch(err => {
-					next(err)
-				})
-		})
-		.put((req, res, next) => { // add
-			if (!req.body.author || !req.body.text) return res.status(400).end()
-			TC.findOneAndUpdate({name: req.params.name}, { $push: { userComment: req.body } }, {sort: { last_run_date: -1 }}, (err, testCase) => {
-				if (err) return next(err)
-				res.status(200).send()
+				res.status(200).send(comment)
 			})
-		})
-
-
-	router.route('/combinedAutoComment/:name')
-		.get((req, res, next) => { // fetch
-			TC.find({name: req.params.name}, 'autoComment')
-				.then(testCases => {
-					if (testCases.length == 0) return res.status(404).send()
-
-					var comment = testCases.reduce((a, i) => a.concat(i.autoComment), [])
-
-					comment.sort((a, b) => {
-						var keyA = new Date(a.time),
-							keyB = new Date(b.time)
-						if (keyA < keyB) return -1
-						if (keyA > keyB) return 1
-						return 0
-					})
-					res.status(200).send(comment)
-				})
-				.catch(err => {
-					next(err)
-				})
-		})
-		.put((req, res, next) => { // add
-			if (!req.body.author || !req.body.text) return res.status(400).end()
-			TC.findOneAndUpdate({name: req.params.name}, { $push: { autoComment: req.body } }, {sort: { last_run_date: -1 }}, (err, testCase) => {
-				if (err) return next(err)
-				res.status(200).send()
+			.catch(err => {
+				next(err)
 			})
+	})
+	.put((req, res, next) => { // add
+		if (!req.body.author || !req.body.text) return res.status(400).end()
+		TC.findOneAndUpdate({ name: req.params.name }, { $push: { userComment: req.body } }, { sort: { last_run_date: -1 } }, (err, testCase) => {
+			if (err) return next(err)
+			res.status(200).send()
 		})
+	})
 
-	router.route('/bugId/:name')
-		.get((req, res, next) => { // fetch
-			TC.findOne({name: req.params.name}, 'bugId')
-				.then(testCase => {
-					if (!testCase) return res.status(404).send()
-					res.status(200).send(testCase.bugId)
+router.route('/combinedAutoComment/:name')
+	.get((req, res, next) => { // fetch
+		TC.find({ name: req.params.name }, 'autoComment')
+			.then(testCases => {
+				if (testCases.length == 0) return res.status(404).send()
+
+				var comment = testCases.reduce((a, i) => a.concat(i.autoComment), [])
+
+				comment.sort((a, b) => {
+					var keyA = new Date(a.time),
+						keyB = new Date(b.time)
+					if (keyA < keyB) return -1
+					if (keyA > keyB) return 1
+					return 0
 				})
-				.catch(err => {
-					next(err)
-				})
-		})
-		.put((req, res, next) => { // add
-			if (!req.body.bugId) return res.status(400).end()
-			TC.update({ name: req.params.name }, { $set: { bugId: req.body.bugId } }, { multi: true }, (err, testCases) => {
-				if (err) return next(err)
-				res.status(200).send(testCases)
+				res.status(200).send(comment)
 			})
+			.catch(err => {
+				next(err)
+			})
+	})
+	.put((req, res, next) => { // add
+		if (!req.body.author || !req.body.text) return res.status(400).end()
+		TC.findOneAndUpdate({ name: req.params.name }, { $push: { autoComment: req.body } }, { sort: { last_run_date: -1 } }, (err, testCase) => {
+			if (err) return next(err)
+			res.status(200).send()
 		})
+	})
+
+router.route('/bugId/:name')
+	.get((req, res, next) => { // fetch
+		TC.findOne({ name: req.params.name }, 'bugId')
+			.then(testCase => {
+				if (!testCase) return res.status(404).send()
+				res.status(200).send(testCase.bugId)
+			})
+			.catch(err => {
+				next(err)
+			})
+	})
+	.put((req, res, next) => { // add
+		if (!req.body.bugId) return res.status(400).end()
+		TC.update({ name: req.params.name }, { $set: { bugId: req.body.bugId } }, { multi: true }, (err, testCases) => {
+			if (err) return next(err)
+			res.status(200).send(testCases)
+		})
+	})
 
 // CRUD operation on database entries by id
 router.route('/TC/:id')
